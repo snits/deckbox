@@ -8,9 +8,9 @@ A Rust library and CLI for managing decks of cards with draw-without-replacement
 
 | Field      | Type                              | Required | Description                                      |
 |------------|-----------------------------------|----------|--------------------------------------------------|
-| `id`       | `String`                          | Yes      | Unique within the deck definition                |
+| `id`       | `String`                          | Yes      | Unique within the deck definition. Duplicate IDs are a validation error. |
 | `text`     | `String`                          | Yes      | Display text for the card                        |
-| `count`    | `Option<u32>`                     | No       | Number of copies in the deck (defaults to 1)     |
+| `count`    | `Option<u32>`                     | No       | Number of copies in the deck (defaults to 1). A count of 0 is a validation error. |
 | `metadata` | `Option<HashMap<String, String>>` | No       | Arbitrary key-value properties (image ref, etc.) |
 
 ### Deck Definition (YAML file)
@@ -20,7 +20,7 @@ A Rust library and CLI for managing decks of cards with draw-without-replacement
 | `name`        | `String`              | Yes      | Human-readable deck name                           |
 | `description` | `Option<String>`      | No       | Deck description                                   |
 | `cards`       | `Vec<CardDef>`        | Yes      | Card definitions                                   |
-| `containers`  | `Option<Vec<String>>` | No       | Additional containers beyond the default draw_pile |
+| `containers`  | `Option<Vec<String>>` | No       | Additional containers beyond the default `draw_pile`. Names colliding with `draw_pile` are a validation error. |
 
 ### Session (runtime state, serializable)
 
@@ -29,6 +29,7 @@ A Rust library and CLI for managing decks of cards with draw-without-replacement
 | `name`            | `String`                          | User-provided session name               |
 | `definition_path` | `PathBuf`                         | Path to the YAML definition file         |
 | `containers`      | `HashMap<String, Vec<InstanceId>>` | Which cards are in which container       |
+| `definition_cards` | `Vec<String>`                     | Card definition IDs at session creation time, for mismatch detection |
 
 ### Two-Level ID Scheme
 
@@ -75,7 +76,7 @@ cards:
 
 | Operation    | Signature                                                   | Description                                       |
 |--------------|-------------------------------------------------------------|---------------------------------------------------|
-| `draw`       | `(container, count) -> Result<Vec<InstanceId>>`             | Take N cards from top of container                |
+| `draw`       | `(from, to, count) -> Result<Vec<InstanceId>>`              | Take N cards from top of `from`, place in `to`    |
 | `move_cards` | `(cards, from, to) -> Result<()>`                           | Move specific cards between containers            |
 | `move_all`   | `(from, to) -> Result<()>`                                  | Move all cards from one container to another      |
 
@@ -86,12 +87,13 @@ cards:
 | `shuffle`          | `(container) -> Result<()>`                  | Fisher-Yates shuffle of a container            |
 | `peek`             | `(container, count) -> Result<Vec<InstanceId>>` | Look at top N cards without moving them     |
 | `list`             | `(container) -> Result<Vec<InstanceId>>`     | List all cards in a container                  |
-| `create_container` | `(name) -> Result<()>`                       | Add a named container at runtime               |
+| `create_container` | `(name) -> Result<()>`                       | Add a named container at runtime. Also called implicitly — any operation referencing a nonexistent container as a destination auto-creates it. |
 
 ### Query
 
 | Operation   | Signature                                   | Description                                    |
 |-------------|---------------------------------------------|------------------------------------------------|
+| `containers` | `() -> Vec<(String, usize)>`               | List all container names with their card counts |
 | `remaining` | `(container) -> Result<usize>`              | How many cards are in a container              |
 | `is_empty`  | `(container) -> Result<bool>`               | Whether a container has zero cards             |
 | `find`      | `(instance_id) -> Result<Option<String>>`   | Which container holds this card                |
@@ -99,10 +101,11 @@ cards:
 
 ### Design Decisions
 
-- `draw` takes from the "top" (end of the vec). `shuffle` randomizes order. Draw order is meaningful — `peek` shows what you'd draw next.
+- `draw` takes from the "top" (end of the vec) of `from` and places cards into `to`. `shuffle` randomizes order. Draw order is meaningful — `peek` shows what you'd draw next.
 - All mutating operations return enough info for the application to react.
-- No container name is privileged — `draw_pile` is just a convention. The engine treats all containers identically.
+- No container name is privileged — `draw_pile` and `drawn` are conventions. The engine treats all containers identically.
 - Drawing from an empty container returns an error. The application decides how to react (reshuffle, warn user, etc.).
+- Referencing a nonexistent container as a destination auto-creates it. Referencing a nonexistent container as a source is a `ContainerNotFound` error.
 
 ## Persistence
 
@@ -113,10 +116,9 @@ cards:
 
 ### Behavior
 
-- Creating a session with `--session <name>` enables persistence. State is saved after each operation.
-- No session flag = ephemeral. Operates in-memory, no state saved.
+- Sessions are always named and persisted. State is saved after each operation.
 - `reset` reloads the definition and rebuilds the session state.
-- If the definition has changed since the session was created (cards added/removed), the engine detects the mismatch on load and warns. The user can `reset` to pick up definition changes. No automatic merging.
+- On load, the engine compares the definition's current card IDs against the `definition_cards` stored at session creation. Any additions or removals trigger a warning. The user can `reset` to pick up definition changes. No automatic merging.
 - Duplicate session names are an error.
 
 ## Architecture
@@ -164,14 +166,14 @@ deckbox/
 
 ```bash
 # Session lifecycle
-deckbox new ~/decks/oracle.yaml --session tuesday     # create session, persist
-deckbox new ~/decks/oracle.yaml                        # ephemeral, no save
+deckbox new ~/decks/oracle.yaml tuesday                # create named session
 deckbox reset tuesday                                  # rebuild from definition
+deckbox sessions                                       # list saved sessions
 
-# Card operations
-deckbox draw tuesday                                   # draw 1 from draw_pile
-deckbox draw tuesday --count 3                         # draw 3
-deckbox draw tuesday --from encounters                 # draw from named container
+# Card operations (draw defaults: --from draw_pile --to drawn)
+deckbox draw tuesday                                   # draw_pile -> drawn
+deckbox draw tuesday --count 3                         # draw 3 cards
+deckbox draw tuesday --from encounters --to hand       # draw from/to specific containers
 deckbox move tuesday --cards goblin-ambush:1 --from hand --to discard
 deckbox move-all tuesday --from discard --to draw_pile
 
@@ -212,4 +214,5 @@ These are explicitly deferred. All can be added later without rewrites:
 - Mutable per-card runtime state (face-up/face-down, damage counters)
 - Cross-session card movement
 - ECS entity-component architecture
+- Ephemeral (unnamed/unsaved) sessions
 - Web or GUI consumers
