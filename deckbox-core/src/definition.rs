@@ -32,7 +32,7 @@ impl DeckDefinition {
     /// Parse a deck definition from a YAML string.
     pub fn from_yaml(yaml: &str) -> Result<Self> {
         let def: DeckDefinition = serde_yaml::from_str(yaml)
-            .map_err(|e| DeckboxError::ParseError(e.to_string()))?;
+            .map_err(|e| DeckboxError::YamlError(e.to_string()))?;
         def.validate()?;
         Ok(def)
     }
@@ -167,6 +167,6 @@ cards:
     #[test]
     fn reject_malformed_yaml() {
         let err = DeckDefinition::from_yaml("not: valid: yaml: [").unwrap_err();
-        assert!(matches!(err, DeckboxError::ParseError(_)));
+        assert!(matches!(err, DeckboxError::YamlError(_)));
     }
 }

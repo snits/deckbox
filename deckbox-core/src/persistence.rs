@@ -11,7 +11,7 @@ use crate::Warning;
 /// Serialize session state to a writer.
 pub fn save_session<W: Write>(session: &Session, writer: &mut W) -> Result<()> {
     serde_yaml::to_writer(writer, session)
-        .map_err(|e| DeckboxError::ParseError(e.to_string()))
+        .map_err(|e| DeckboxError::YamlError(e.to_string()))
 }
 
 /// Deserialize session state from a reader. Compares definition card IDs
@@ -21,7 +21,7 @@ pub fn load_session<R: Read>(
     definition: &DeckDefinition,
 ) -> Result<(Session, Vec<Warning>)> {
     let session: Session = serde_yaml::from_reader(reader)
-        .map_err(|e| DeckboxError::ParseError(e.to_string()))?;
+        .map_err(|e| DeckboxError::YamlError(e.to_string()))?;
 
     let mut warnings = Vec::new();
 
