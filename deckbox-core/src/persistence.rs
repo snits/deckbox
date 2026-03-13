@@ -1,6 +1,7 @@
 // ABOUTME: Serialize and deserialize session state.
 // ABOUTME: Uses Read/Write traits so callers control storage location.
 
+use std::collections::HashSet;
 use std::io::{Read, Write};
 use crate::error::{DeckboxError, Result};
 use crate::session::Session;
@@ -24,20 +25,11 @@ pub fn load_session<R: Read>(
 
     let mut warnings = Vec::new();
 
-    let current_ids: Vec<String> = definition.cards.iter().map(|c| c.id.clone()).collect();
-    let stored_ids = &session.definition_cards;
+    let current_ids: HashSet<&String> = definition.cards.iter().map(|c| &c.id).collect();
+    let stored_ids: HashSet<&String> = session.definition_cards.iter().collect();
 
-    let added: Vec<String> = current_ids
-        .iter()
-        .filter(|id| !stored_ids.contains(id))
-        .cloned()
-        .collect();
-
-    let removed: Vec<String> = stored_ids
-        .iter()
-        .filter(|id| !current_ids.contains(id))
-        .cloned()
-        .collect();
+    let added: Vec<String> = current_ids.difference(&stored_ids).map(|s| s.to_string()).collect();
+    let removed: Vec<String> = stored_ids.difference(&current_ids).map(|s| s.to_string()).collect();
 
     if !added.is_empty() || !removed.is_empty() {
         warnings.push(Warning::DefinitionMismatch { added, removed });
