@@ -60,6 +60,12 @@ impl Session {
     pub fn definition_id(instance_id: &str) -> Option<&str> {
         instance_id.rsplit_once(':').map(|(def_id, _)| def_id)
     }
+
+    /// Reset the session to initial state from the definition.
+    /// Preserves the session name and definition path.
+    pub fn reset(&self, definition: &DeckDefinition) -> Self {
+        Session::new(&self.name, self.definition_path.clone(), definition, false)
+    }
 }
 
 #[cfg(test)]
@@ -137,5 +143,20 @@ cards:
     #[test]
     fn definition_id_returns_none_for_invalid() {
         assert_eq!(Session::definition_id("no-suffix"), None);
+    }
+
+    #[test]
+    fn reset_rebuilds_from_definition() {
+        let def = DeckDefinition::from_yaml(TEST_YAML).unwrap();
+        let mut session = Session::new("test-session", PathBuf::from("/test/deck.yaml"), &def, false);
+
+        // Simulate some play — move cards around
+        session.containers.get_mut("draw_pile").unwrap().pop();
+        session.containers.get_mut("discard").unwrap().push("a:1".to_string());
+
+        let reset_session = session.reset(&def);
+        assert_eq!(reset_session.name, "test-session");
+        assert_eq!(reset_session.containers["draw_pile"].len(), 3);
+        assert!(reset_session.containers["discard"].is_empty());
     }
 }
