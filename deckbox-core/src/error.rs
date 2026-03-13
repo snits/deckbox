@@ -24,17 +24,14 @@ pub enum DeckboxError {
     #[error("session not found: {0}")]
     SessionNotFound(String),
 
-    #[error("definition not found: {0}")]
-    DefinitionNotFound(String),
-
     #[error("duplicate session: {0}")]
     DuplicateSession(String),
 
     #[error("validation error: {0}")]
     ValidationError(String),
 
-    #[error("parse error: {0}")]
-    ParseError(String),
+    #[error("yaml error: {0}")]
+    YamlError(String),
 }
 
 pub type Result<T> = std::result::Result<T, DeckboxError>;
