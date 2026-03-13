@@ -1,0 +1,3 @@
+[workspace]
+members = ["deckbox-core", "deckbox-cli"]
+resolver = "2"
