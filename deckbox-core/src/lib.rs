@@ -3,6 +3,8 @@
 
 pub mod error;
 pub mod definition;
+pub mod session;
 
 pub use error::{DeckboxError, Result};
 pub use definition::{CardDef, DeckDefinition};
+pub use session::{InstanceId, Session};
