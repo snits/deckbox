@@ -2,5 +2,7 @@
 // ABOUTME: Re-exports public types and modules.
 
 pub mod error;
+pub mod definition;
 
 pub use error::{DeckboxError, Result};
+pub use definition::{CardDef, DeckDefinition};
