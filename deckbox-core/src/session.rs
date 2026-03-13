@@ -136,6 +136,40 @@ cards:
     }
 
     #[test]
+    fn new_with_shuffle_changes_order() {
+        let yaml = r#"
+name: "Big"
+cards:
+  - id: c
+    text: "C"
+    count: 20
+"#;
+        let def = DeckDefinition::from_yaml(yaml).unwrap();
+        let unshuffled = Session::new("test", PathBuf::from("/test/deck.yaml"), &def, false);
+        let shuffled = Session::new("test", PathBuf::from("/test/deck.yaml"), &def, true);
+        let before = &unshuffled.containers["draw_pile"];
+        let after = &shuffled.containers["draw_pile"];
+        assert_eq!(before.len(), after.len());
+        // With 20 cards, the probability of identical order after shuffle is 1/20! ≈ 0
+        assert_ne!(before, after);
+    }
+
+    #[test]
+    fn unshuffled_draw_pile_preserves_definition_order() {
+        let session = make_session(TEST_YAML);
+        let draw_pile = &session.containers["draw_pile"];
+        // alpha has count: 2, beta has count: 1
+        // Definition order: alpha first, then beta
+        assert_eq!(draw_pile, &vec!["alpha:1", "alpha:2", "beta:1"]);
+    }
+
+    #[test]
+    fn definition_id_with_multiple_colons() {
+        // rsplit_once should handle IDs with colons like "a:b:2" -> "a:b"
+        assert_eq!(definition_id("a:b:2"), Some("a:b"));
+    }
+
+    #[test]
     fn definition_id_strips_suffix() {
         assert_eq!(definition_id("goblin-ambush:2"), Some("goblin-ambush"));
         assert_eq!(definition_id("alpha:1"), Some("alpha"));
