@@ -4,6 +4,7 @@
 pub mod error;
 pub mod definition;
 pub mod session;
+pub mod operations;
 
 pub use error::{DeckboxError, Result};
 pub use definition::{CardDef, DeckDefinition};
