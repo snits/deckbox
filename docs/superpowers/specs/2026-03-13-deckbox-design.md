@@ -68,7 +68,7 @@ cards:
 | Operation      | Signature                                                     | Description                                                  |
 |----------------|---------------------------------------------------------------|--------------------------------------------------------------|
 | `create`       | `(name, definition_path, shuffle: bool) -> Result<Session>`   | Instantiate from definition, all cards in draw_pile          |
-| `load`         | `(name) -> Result<Session>`                                   | Load saved session state from disk                           |
+| `load`         | `(name) -> Result<(Session, Vec<Warning>)>`                   | Load saved session state from disk. Warnings include definition mismatches. |
 | `save`         | `(session) -> Result<()>`                                     | Persist session state to disk                                |
 | `reset`        | `(session) -> Result<Session>`                                | Rebuild from definition, all cards back to draw_pile         |
 
@@ -118,7 +118,7 @@ cards:
 
 - Sessions are always named and persisted. State is saved after each operation.
 - `reset` reloads the definition and rebuilds the session state.
-- On load, the engine compares the definition's current card IDs against the `definition_cards` stored at session creation. Any additions or removals trigger a warning. The user can `reset` to pick up definition changes. No automatic merging.
+- On load, the engine compares the definition's current card IDs against the `definition_cards` stored at session creation. Any additions or removals are surfaced as a non-fatal warning alongside the successfully loaded session. The user can `reset` to pick up definition changes. No automatic merging.
 - Duplicate session names are an error.
 
 ## Architecture
@@ -149,7 +149,7 @@ deckbox/
 ### CLI (`deckbox-cli`)
 
 - Thin wrapper using `clap` for argument parsing.
-- Subcommands map directly to core operations.
+- Subcommands generally map to core operations. `sessions` is CLI-only (lists files in the sessions directory).
 - Handles file paths, XDG directories, terminal output formatting.
 
 ### Dependencies (MVP)
@@ -170,8 +170,8 @@ deckbox new ~/decks/oracle.yaml tuesday                # create named session
 deckbox reset tuesday                                  # rebuild from definition
 deckbox sessions                                       # list saved sessions
 
-# Card operations (draw defaults: --from draw_pile --to drawn)
-deckbox draw tuesday                                   # draw_pile -> drawn
+# Card operations (draw defaults: --from draw_pile --to drawn --count 1)
+deckbox draw tuesday                                   # draw_pile -> drawn, 1 card
 deckbox draw tuesday --count 3                         # draw 3 cards
 deckbox draw tuesday --from encounters --to hand       # draw from/to specific containers
 deckbox move tuesday --cards goblin-ambush:1 --from hand --to discard
@@ -180,7 +180,7 @@ deckbox move-all tuesday --from discard --to draw_pile
 # Container operations
 deckbox shuffle tuesday                                # shuffle draw_pile
 deckbox shuffle tuesday --container discard            # shuffle specific container
-deckbox peek tuesday --count 3                         # peek at top 3
+deckbox peek tuesday --count 3                         # peek at top 3 (defaults to 1)
 
 # Query
 deckbox list tuesday                                   # all containers and counts
@@ -199,8 +199,8 @@ The core library defines a `DeckboxError` enum using `thiserror`:
 | `NotEnoughCards`     | Draw/peek requests more cards than the container holds            |
 | `SessionNotFound`    | Load/save can't find the session file                             |
 | `DefinitionNotFound` | Session's definition path doesn't resolve                         |
-| `DefinitionMismatch` | Session references instance IDs absent from current definition    |
 | `DuplicateSession`   | Creating a session with a name that already exists                |
+| `ValidationError`    | Definition content violates structural rules (duplicate IDs, zero count, reserved container names) |
 | `ParseError`         | Malformed YAML in definition or session file                      |
 
 The CLI maps these to user-friendly messages and appropriate exit codes.
