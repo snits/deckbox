@@ -46,6 +46,8 @@ mod tests {
 
     const TEST_YAML: &str = r#"
 name: "Test"
+containers:
+  - discard
 cards:
   - id: alpha
     text: "Alpha"
@@ -63,9 +65,18 @@ cards:
         save_session(&session, &mut buf).unwrap();
 
         let (loaded, warnings) = load_session(&buf[..], &def).unwrap();
-        assert_eq!(loaded.name, "test");
-        assert_eq!(loaded.containers["draw_pile"].len(), 3);
         assert!(warnings.is_empty());
+
+        // Verify all fields survive round-trip
+        assert_eq!(loaded.name, session.name);
+        assert_eq!(loaded.definition_path, session.definition_path);
+        assert_eq!(loaded.definition_cards, session.definition_cards);
+
+        // Verify all containers and their contents (including order)
+        assert_eq!(loaded.containers.len(), session.containers.len());
+        assert_eq!(loaded.containers["draw_pile"], session.containers["draw_pile"]);
+        assert!(loaded.containers.contains_key("discard"));
+        assert!(loaded.containers["discard"].is_empty());
     }
 
     #[test]
