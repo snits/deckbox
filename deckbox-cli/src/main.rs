@@ -103,28 +103,26 @@ enum Commands {
     Sessions,
 }
 
-fn sessions_dir() -> PathBuf {
-    dirs::data_dir()
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("deckbox")
-        .join("sessions")
+fn sessions_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
+    let base = dirs::data_dir()
+        .ok_or("cannot determine data directory (XDG_DATA_HOME or HOME not set)")?;
+    Ok(base.join("deckbox").join("sessions"))
 }
 
-fn session_path(name: &str) -> PathBuf {
-    sessions_dir().join(format!("{}.yaml", name))
+fn session_path(name: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    Ok(sessions_dir()?.join(format!("{}.yaml", name)))
 }
 
 fn load_session(name: &str) -> Result<(Session, DeckDefinition), Box<dyn std::error::Error>> {
-    let path = session_path(name);
+    let path = session_path(name)?;
     if !path.exists() {
         return Err(deckbox_core::DeckboxError::SessionNotFound(name.into()).into());
     }
     let bytes = fs::read(&path)?;
-    let partial: serde_yaml::Value = serde_yaml::from_slice(&bytes)?;
-    let def_path = partial["definition_path"]
-        .as_str()
-        .ok_or_else(|| deckbox_core::DeckboxError::ParseError("missing definition_path".into()))?;
-    let def_yaml = fs::read_to_string(def_path)?;
+    // Deserialize once to get definition_path, then load definition for mismatch check
+    let session: Session = serde_yaml::from_slice(&bytes)?;
+    let def_yaml = fs::read_to_string(&session.definition_path)
+        .map_err(|e| format!("cannot read definition '{}': {}", session.definition_path.display(), e))?;
     let def = DeckDefinition::from_yaml(&def_yaml)?;
     let (session, warnings) = persistence::load_session(&bytes[..], &def)?;
     for warning in &warnings {
@@ -144,9 +142,9 @@ fn load_session(name: &str) -> Result<(Session, DeckDefinition), Box<dyn std::er
 }
 
 fn save_session(session: &Session) -> Result<(), Box<dyn std::error::Error>> {
-    let dir = sessions_dir();
+    let dir = sessions_dir()?;
     fs::create_dir_all(&dir)?;
-    let path = session_path(&session.name);
+    let path = session_path(&session.name)?;
     let file = fs::File::create(&path)?;
     let mut writer = std::io::BufWriter::new(file);
     persistence::save_session(session, &mut writer)?;
@@ -169,7 +167,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             name,
             shuffle,
         } => {
-            let path = session_path(&name);
+            let path = session_path(&name)?;
             if path.exists() {
                 Err(deckbox_core::DeckboxError::DuplicateSession(name).into())
             } else {
@@ -280,24 +278,29 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
         }
 
         Commands::Sessions => {
-            let dir = sessions_dir();
+            let dir = sessions_dir()?;
             if !dir.exists() {
                 println!("No saved sessions.");
                 return Ok(());
             }
-            let mut found = false;
-            for entry in fs::read_dir(&dir)? {
-                let entry = entry?;
-                let path = entry.path();
-                if path.extension().is_some_and(|e| e == "yaml") {
-                    if let Some(stem) = path.file_stem() {
-                        println!("  {}", stem.to_string_lossy());
-                        found = true;
+            let mut entries: Vec<_> = fs::read_dir(&dir)?
+                .filter_map(|e| e.ok())
+                .filter_map(|e| {
+                    let path = e.path();
+                    if path.extension().is_some_and(|ext| ext == "yaml") {
+                        path.file_stem().map(|s| s.to_string_lossy().into_owned())
+                    } else {
+                        None
                     }
-                }
-            }
-            if !found {
+                })
+                .collect();
+            entries.sort();
+            if entries.is_empty() {
                 println!("No saved sessions.");
+            } else {
+                for name in &entries {
+                    println!("  {}", name);
+                }
             }
             Ok(())
         }
