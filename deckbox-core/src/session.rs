@@ -7,7 +7,13 @@ use std::path::PathBuf;
 
 use crate::definition::DeckDefinition;
 
+/// A unique card identifier in the format `{definition_id}:{n}` where `n` is the copy number.
 pub type InstanceId = String;
+
+/// Extract the definition ID from an instance ID by stripping the `:N` suffix.
+pub fn definition_id(instance_id: &str) -> Option<&str> {
+    instance_id.rsplit_once(':').map(|(def_id, _)| def_id)
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Session {
@@ -54,11 +60,6 @@ impl Session {
             containers,
             definition_cards,
         }
-    }
-
-    /// Extract the definition ID from an instance ID by stripping the `:N` suffix.
-    pub fn definition_id(instance_id: &str) -> Option<&str> {
-        instance_id.rsplit_once(':').map(|(def_id, _)| def_id)
     }
 
     /// Reset the session to initial state from the definition.
@@ -136,13 +137,13 @@ cards:
 
     #[test]
     fn definition_id_strips_suffix() {
-        assert_eq!(Session::definition_id("goblin-ambush:2"), Some("goblin-ambush"));
-        assert_eq!(Session::definition_id("alpha:1"), Some("alpha"));
+        assert_eq!(definition_id("goblin-ambush:2"), Some("goblin-ambush"));
+        assert_eq!(definition_id("alpha:1"), Some("alpha"));
     }
 
     #[test]
     fn definition_id_returns_none_for_invalid() {
-        assert_eq!(Session::definition_id("no-suffix"), None);
+        assert_eq!(definition_id("no-suffix"), None);
     }
 
     #[test]

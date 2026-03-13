@@ -1,10 +1,11 @@
 // ABOUTME: Operations on sessions — draw, move, shuffle, peek, and queries.
 // ABOUTME: All operations work on container names and instance IDs.
 
+use std::collections::HashSet;
 use rand::seq::SliceRandom;
 use crate::definition::{CardDef, DeckDefinition};
 use crate::error::{DeckboxError, Result};
-use crate::session::{InstanceId, Session};
+use crate::session::{self, InstanceId, Session};
 
 pub fn remaining(session: &Session, container: &str) -> Result<usize> {
     session.containers.get(container).map(|c| c.len())
@@ -16,7 +17,9 @@ pub fn is_empty(session: &Session, container: &str) -> Result<bool> {
 }
 
 pub fn containers(session: &Session) -> Vec<(String, usize)> {
-    session.containers.iter().map(|(name, cards)| (name.clone(), cards.len())).collect()
+    let mut result: Vec<_> = session.containers.iter().map(|(name, cards)| (name.clone(), cards.len())).collect();
+    result.sort_by(|a, b| a.0.cmp(&b.0));
+    result
 }
 
 pub fn list(session: &Session, container: &str) -> Result<Vec<InstanceId>> {
@@ -30,6 +33,9 @@ pub fn create_container(session: &mut Session, name: &str) -> Result<()> {
 }
 
 pub fn peek(session: &Session, container: &str, count: usize) -> Result<Vec<InstanceId>> {
+    if count == 0 {
+        return Ok(Vec::new());
+    }
     let cards = session.containers.get(container)
         .ok_or_else(|| DeckboxError::ContainerNotFound(container.into()))?;
     if cards.is_empty() {
@@ -52,6 +58,9 @@ pub fn shuffle(session: &mut Session, container: &str) -> Result<()> {
 }
 
 pub fn draw(session: &mut Session, from: &str, to: &str, count: usize) -> Result<Vec<InstanceId>> {
+    if count == 0 {
+        return Ok(Vec::new());
+    }
     {
         let source = session.containers.get(from)
             .ok_or_else(|| DeckboxError::ContainerNotFound(from.into()))?;
@@ -73,17 +82,22 @@ pub fn draw(session: &mut Session, from: &str, to: &str, count: usize) -> Result
 }
 
 pub fn move_cards(session: &mut Session, cards: &[InstanceId], from: &str, to: &str) -> Result<()> {
+    if cards.is_empty() {
+        return Ok(());
+    }
     {
         let source = session.containers.get(from)
             .ok_or_else(|| DeckboxError::ContainerNotFound(from.into()))?;
-        for card in cards {
+        let card_set: HashSet<&InstanceId> = cards.iter().collect();
+        for card in &card_set {
             if !source.contains(card) {
                 return Err(DeckboxError::CardNotFound(format!("{} not found in {}", card, from)));
             }
         }
     }
+    let card_set: HashSet<&InstanceId> = cards.iter().collect();
     let source = session.containers.get_mut(from).unwrap();
-    source.retain(|c| !cards.contains(c));
+    source.retain(|c| !card_set.contains(c));
     create_container(session, to)?;
     session.containers.get_mut(to).unwrap().extend(cards.iter().cloned());
     Ok(())
@@ -109,7 +123,7 @@ pub fn find(session: &Session, instance_id: &str) -> Result<Option<String>> {
 }
 
 pub fn resolve(instance_id: &str, definition: &DeckDefinition) -> Result<CardDef> {
-    let def_id = Session::definition_id(instance_id).ok_or_else(|| {
+    let def_id = session::definition_id(instance_id).ok_or_else(|| {
         DeckboxError::CardNotFound(format!("invalid instance ID format: {}", instance_id))
     })?;
     definition.cards.iter().find(|c| c.id == def_id).cloned()
@@ -343,6 +357,50 @@ cards:
         let card = resolve("alpha:1", &def).unwrap();
         assert_eq!(card.id, "alpha");
         assert_eq!(card.text, "Alpha card");
+    }
+
+    #[test]
+    fn draw_zero_returns_empty_without_side_effects() {
+        let mut session = test_session();
+        let drawn = draw(&mut session, "draw_pile", "new-dest", 0).unwrap();
+        assert!(drawn.is_empty());
+        // Should NOT auto-create the destination container
+        assert!(!session.containers.contains_key("new-dest"));
+    }
+
+    #[test]
+    fn peek_zero_returns_empty() {
+        let session = test_session();
+        let peeked = peek(&session, "draw_pile", 0).unwrap();
+        assert!(peeked.is_empty());
+    }
+
+    #[test]
+    fn peek_zero_on_empty_container_returns_empty() {
+        let session = test_session();
+        let peeked = peek(&session, "discard", 0).unwrap();
+        assert!(peeked.is_empty());
+    }
+
+    #[test]
+    fn move_empty_slice_is_noop() {
+        let mut session = test_session();
+        move_cards(&mut session, &[], "draw_pile", "new-dest").unwrap();
+        // Should NOT auto-create the destination container
+        assert!(!session.containers.contains_key("new-dest"));
+        assert_eq!(remaining(&session, "draw_pile").unwrap(), 5);
+    }
+
+    #[test]
+    fn containers_sorted_by_name() {
+        let mut session = test_session();
+        create_container(&mut session, "hand").unwrap();
+        create_container(&mut session, "archive").unwrap();
+        let cs = containers(&session);
+        let names: Vec<&str> = cs.iter().map(|(n, _)| n.as_str()).collect();
+        let mut sorted = names.clone();
+        sorted.sort();
+        assert_eq!(names, sorted);
     }
 
     #[test]
