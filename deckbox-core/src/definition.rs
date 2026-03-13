@@ -5,7 +5,7 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use crate::error::{DeckboxError, Result};
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct CardDef {
     pub id: String,
     pub text: String,
@@ -20,7 +20,7 @@ impl CardDef {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct DeckDefinition {
     pub name: String,
     pub description: Option<String>,
