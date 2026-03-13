@@ -25,12 +25,8 @@ pub fn list(session: &Session, container: &str) -> Result<Vec<InstanceId>> {
 }
 
 pub fn create_container(session: &mut Session, name: &str) -> Result<()> {
-    session.containers.entry(name.to_string()).or_insert_with(Vec::new);
+    session.containers.entry(name.to_string()).or_default();
     Ok(())
-}
-
-fn ensure_destination(session: &mut Session, container: &str) {
-    session.containers.entry(container.to_string()).or_insert_with(Vec::new);
 }
 
 pub fn peek(session: &Session, container: &str, count: usize) -> Result<Vec<InstanceId>> {
@@ -71,8 +67,8 @@ pub fn draw(session: &mut Session, from: &str, to: &str, count: usize) -> Result
     let source = session.containers.get_mut(from).unwrap();
     let split_at = source.len() - count;
     let drawn: Vec<InstanceId> = source.split_off(split_at);
-    ensure_destination(session, to);
-    session.containers.get_mut(to).unwrap().extend(drawn.clone());
+    create_container(session, to)?;
+    session.containers.get_mut(to).unwrap().extend_from_slice(&drawn);
     Ok(drawn)
 }
 
@@ -88,16 +84,17 @@ pub fn move_cards(session: &mut Session, cards: &[InstanceId], from: &str, to: &
     }
     let source = session.containers.get_mut(from).unwrap();
     source.retain(|c| !cards.contains(c));
-    ensure_destination(session, to);
+    create_container(session, to)?;
     session.containers.get_mut(to).unwrap().extend(cards.iter().cloned());
     Ok(())
 }
 
 pub fn move_all(session: &mut Session, from: &str, to: &str) -> Result<()> {
-    let cards = session.containers.get(from)
-        .ok_or_else(|| DeckboxError::ContainerNotFound(from.into()))?.clone();
-    session.containers.get_mut(from).unwrap().clear();
-    ensure_destination(session, to);
+    let cards: Vec<InstanceId> = session.containers.get_mut(from)
+        .ok_or_else(|| DeckboxError::ContainerNotFound(from.into()))?
+        .drain(..)
+        .collect();
+    create_container(session, to)?;
     session.containers.get_mut(to).unwrap().extend(cards);
     Ok(())
 }
@@ -111,7 +108,7 @@ pub fn find(session: &Session, instance_id: &str) -> Result<Option<String>> {
     Ok(None)
 }
 
-pub fn resolve(_session: &Session, instance_id: &str, definition: &DeckDefinition) -> Result<CardDef> {
+pub fn resolve(instance_id: &str, definition: &DeckDefinition) -> Result<CardDef> {
     let def_id = Session::definition_id(instance_id).ok_or_else(|| {
         DeckboxError::CardNotFound(format!("invalid instance ID format: {}", instance_id))
     })?;
@@ -343,8 +340,7 @@ cards:
     text: "Alpha card"
 "#;
         let def = DeckDefinition::from_yaml(yaml).unwrap();
-        let session = Session::new("test", std::path::PathBuf::from("/test/deck.yaml"), &def, false);
-        let card = resolve(&session, "alpha:1", &def).unwrap();
+        let card = resolve("alpha:1", &def).unwrap();
         assert_eq!(card.id, "alpha");
         assert_eq!(card.text, "Alpha card");
     }
@@ -358,7 +354,6 @@ cards:
     text: "Alpha card"
 "#;
         let def = DeckDefinition::from_yaml(yaml).unwrap();
-        let session = Session::new("test", std::path::PathBuf::from("/test/deck.yaml"), &def, false);
-        assert!(matches!(resolve(&session, "nonexistent:1", &def), Err(DeckboxError::CardNotFound(_))));
+        assert!(matches!(resolve("nonexistent:1", &def), Err(DeckboxError::CardNotFound(_))));
     }
 }
