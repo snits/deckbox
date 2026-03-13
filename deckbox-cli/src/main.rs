@@ -153,9 +153,9 @@ fn save_session(session: &Session) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn print_cards(cards: &[String], def: &DeckDefinition, session: &Session) {
+fn print_cards(cards: &[String], def: &DeckDefinition) {
     for instance_id in cards {
-        match operations::resolve(session, instance_id, def) {
+        match operations::resolve(instance_id, def) {
             Ok(card) => println!("  {} — {}", instance_id, card.text),
             Err(_) => println!("  {} — (unknown)", instance_id),
         }
@@ -196,7 +196,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             let (mut session, def) = load_session(&name)?;
             let drawn = operations::draw(&mut session, &from, &to, count)?;
             println!("Drew {} card(s) from '{}' to '{}':", drawn.len(), from, to);
-            print_cards(&drawn, &def, &session);
+            print_cards(&drawn, &def);
             save_session(&session)?;
             Ok(())
         }
@@ -245,7 +245,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             let (session, def) = load_session(&name)?;
             let peeked = operations::peek(&session, &container, count)?;
             println!("Top {} card(s) in '{}':", peeked.len(), container);
-            print_cards(&peeked, &def, &session);
+            print_cards(&peeked, &def);
             Ok(())
         }
 
@@ -258,7 +258,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 Some(c) => {
                     let cards = operations::list(&session, &c)?;
                     println!("'{}' ({} cards):", c, cards.len());
-                    print_cards(&cards, &def, &session);
+                    print_cards(&cards, &def);
                 }
                 None => {
                     let info = operations::containers(&session);
