@@ -166,6 +166,111 @@ fn sessions_lists_saved() {
 }
 
 #[test]
+fn peek_shows_top_cards() {
+    let dir = TempDir::new().unwrap();
+    let deck = create_test_deck(&dir);
+
+    deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["new", deck.to_str().unwrap(), "peek-test"])
+        .output()
+        .unwrap();
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["peek", "peek-test", "--count", "2"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(stdout.contains("Top 2 card(s)"));
+}
+
+#[test]
+fn move_cards_between_containers() {
+    let dir = TempDir::new().unwrap();
+    let deck = create_test_deck(&dir);
+
+    deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["new", deck.to_str().unwrap(), "move-test"])
+        .output()
+        .unwrap();
+
+    // Draw a card to know its instance ID
+    let draw_output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["draw", "move-test", "--to", "hand"])
+        .output()
+        .unwrap();
+    let draw_stdout = String::from_utf8_lossy(&draw_output.stdout);
+
+    // Extract instance ID from output (format: "  id — text")
+    let instance_id = draw_stdout.lines()
+        .find(|l| l.contains(" — "))
+        .and_then(|l| l.trim().split(" — ").next())
+        .unwrap();
+
+    // Move the card from hand to discard
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["move", "move-test", "--cards", instance_id, "--from", "hand", "--to", "discard"])
+        .output()
+        .unwrap();
+
+    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("Moved 1 card(s)"));
+
+    // Verify the card is in discard
+    let list_output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["list", "move-test", "--container", "discard"])
+        .output()
+        .unwrap();
+    let list_stdout = String::from_utf8_lossy(&list_output.stdout);
+    assert!(list_stdout.contains(instance_id));
+}
+
+#[test]
+fn list_specific_container() {
+    let dir = TempDir::new().unwrap();
+    let deck = create_test_deck(&dir);
+
+    deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["new", deck.to_str().unwrap(), "listc-test"])
+        .output()
+        .unwrap();
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["list", "listc-test", "--container", "draw_pile"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(stdout.contains("draw_pile"));
+    assert!(stdout.contains("4 cards")); // 2 alpha + 1 beta + 1 gamma
+    assert!(stdout.contains("alpha:1"));
+}
+
+#[test]
+fn nonexistent_session_errors() {
+    let dir = TempDir::new().unwrap();
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["draw", "no-such-session"])
+        .output()
+        .unwrap();
+
+    assert!(!output.status.success());
+}
+
+#[test]
 fn full_workflow_draw_move_reshuffle() {
     let dir = TempDir::new().unwrap();
     let deck = create_test_deck(&dir);
