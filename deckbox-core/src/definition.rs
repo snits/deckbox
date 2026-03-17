@@ -39,6 +39,11 @@ impl DeckDefinition {
 
     /// Validate structural rules: no duplicate IDs, no zero counts, no reserved container names.
     fn validate(&self) -> Result<()> {
+        if self.cards.is_empty() {
+            return Err(DeckboxError::ValidationError(
+                "deck has empty cards list".into(),
+            ));
+        }
         let mut seen_ids = std::collections::HashSet::new();
         for card in &self.cards {
             if !seen_ids.insert(&card.id) {
@@ -180,6 +185,17 @@ cards:
         let err = DeckDefinition::from_yaml(yaml).unwrap_err();
         assert!(matches!(err, DeckboxError::ValidationError(_)));
         assert!(err.to_string().contains("colon"));
+    }
+
+    #[test]
+    fn reject_empty_cards() {
+        let yaml = r#"
+name: "Empty Deck"
+cards: []
+"#;
+        let err = DeckDefinition::from_yaml(yaml).unwrap_err();
+        assert!(matches!(err, DeckboxError::ValidationError(_)));
+        assert!(err.to_string().contains("empty"));
     }
 
     #[test]
