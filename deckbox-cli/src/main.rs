@@ -243,7 +243,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
             let (session, def) = load_session(&name)?;
             let peeked = operations::peek(&session, &container, count)?;
             println!("Top {} card(s) in '{}':", peeked.len(), container);
-            print_cards(&peeked, &def);
+            print_cards(peeked, &def);
             Ok(())
         }
 
@@ -256,7 +256,7 @@ fn run(cli: Cli) -> Result<(), Box<dyn std::error::Error>> {
                 Some(c) => {
                     let cards = operations::list(&session, &c)?;
                     println!("'{}' ({} cards):", c, cards.len());
-                    print_cards(&cards, &def);
+                    print_cards(cards, &def);
                 }
                 None => {
                     let info = operations::containers(&session);
