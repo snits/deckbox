@@ -47,6 +47,49 @@ mod tests {
     }
 
     #[test]
+    fn card_not_found_display() {
+        let err = DeckboxError::CardNotFound("ace:1".into());
+        assert!(err.to_string().contains("ace:1"));
+    }
+
+    #[test]
+    fn container_empty_display() {
+        let err = DeckboxError::ContainerEmpty("hand".into());
+        assert!(err.to_string().contains("hand"));
+    }
+
+    #[test]
+    fn session_not_found_display() {
+        let err = DeckboxError::SessionNotFound("game1".into());
+        assert!(err.to_string().contains("game1"));
+    }
+
+    #[test]
+    fn duplicate_session_display() {
+        let err = DeckboxError::DuplicateSession("game1".into());
+        assert!(err.to_string().contains("game1"));
+    }
+
+    #[test]
+    fn not_enough_cards_display() {
+        let err = DeckboxError::NotEnoughCards {
+            container: "draw_pile".into(),
+            requested: 5,
+            available: 2,
+        };
+        let msg = err.to_string();
+        assert!(msg.contains("draw_pile"));
+        assert!(msg.contains("5"));
+        assert!(msg.contains("2"));
+    }
+
+    #[test]
+    fn yaml_error_display() {
+        let err = DeckboxError::YamlError("bad input".into());
+        assert!(err.to_string().contains("bad input"));
+    }
+
+    #[test]
     fn validation_error_display() {
         let err = DeckboxError::ValidationError("duplicate card ID: goblin".into());
         assert!(err.to_string().contains("duplicate card ID: goblin"));
