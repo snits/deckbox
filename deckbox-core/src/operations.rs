@@ -446,4 +446,32 @@ cards:
         let def = DeckDefinition::from_yaml(yaml).unwrap();
         assert!(matches!(resolve("nonexistent:1", &def), Err(DeckboxError::CardNotFound(_))));
     }
+
+    #[test]
+    fn draw_to_existing_nonempty_destination() {
+        let mut session = test_session();
+        draw(&mut session, "draw_pile", "drawn", 1).unwrap();
+        draw(&mut session, "draw_pile", "drawn", 1).unwrap();
+        assert_eq!(remaining(&session, "drawn").unwrap(), 2);
+        assert_eq!(remaining(&session, "draw_pile").unwrap(), 3);
+    }
+
+    #[test]
+    fn move_cards_same_source_and_destination() {
+        let mut session = test_session();
+        let drawn = draw(&mut session, "draw_pile", "hand", 3).unwrap();
+        let card = drawn[0].clone();
+        move_cards(&mut session, &[card.clone()], "hand", "hand").unwrap();
+        assert_eq!(remaining(&session, "hand").unwrap(), 3);
+        assert!(session.containers["hand"].contains(&card));
+    }
+
+    #[test]
+    fn move_all_from_empty_source() {
+        let mut session = test_session();
+        assert_eq!(remaining(&session, "discard").unwrap(), 0);
+        move_all(&mut session, "discard", "draw_pile").unwrap();
+        assert_eq!(remaining(&session, "draw_pile").unwrap(), 5);
+        assert_eq!(remaining(&session, "discard").unwrap(), 0);
+    }
 }
