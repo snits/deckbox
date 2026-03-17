@@ -14,15 +14,18 @@ pub fn save_session<W: Write>(session: &Session, writer: &mut W) -> Result<()> {
         .map_err(|e| DeckboxError::YamlError(e.to_string()))
 }
 
-/// Deserialize session state from a reader. Compares definition card IDs
-/// to detect mismatches, returning warnings alongside the session.
-pub fn load_session<R: Read>(
-    reader: R,
-    definition: &DeckDefinition,
-) -> Result<(Session, Vec<Warning>)> {
-    let session: Session = serde_yaml::from_reader(reader)
-        .map_err(|e| DeckboxError::YamlError(e.to_string()))?;
+/// Deserialize session state from a reader.
+pub fn load_session<R: Read>(reader: R) -> Result<Session> {
+    serde_yaml::from_reader(reader)
+        .map_err(|e| DeckboxError::YamlError(e.to_string()))
+}
 
+/// Compare session's stored card IDs against a definition, returning
+/// warnings for any added or removed cards.
+pub fn check_definition_mismatch(
+    session: &Session,
+    definition: &DeckDefinition,
+) -> Vec<Warning> {
     let mut warnings = Vec::new();
 
     let current_ids: HashSet<&String> = definition.cards.iter().map(|c| &c.id).collect();
@@ -35,7 +38,7 @@ pub fn load_session<R: Read>(
         warnings.push(Warning::DefinitionMismatch { added, removed });
     }
 
-    Ok((session, warnings))
+    warnings
 }
 
 #[cfg(test)]
@@ -64,7 +67,8 @@ cards:
         let mut buf = Vec::new();
         save_session(&session, &mut buf).unwrap();
 
-        let (loaded, warnings) = load_session(&buf[..], &def).unwrap();
+        let loaded = load_session(&buf[..]).unwrap();
+        let warnings = check_definition_mismatch(&loaded, &def);
         assert!(warnings.is_empty());
 
         // Verify all fields survive round-trip
@@ -99,7 +103,8 @@ cards:
     text: "Gamma"
 "#;
         let new_def = DeckDefinition::from_yaml(new_yaml).unwrap();
-        let (_, warnings) = load_session(&buf[..], &new_def).unwrap();
+        let session = load_session(&buf[..]).unwrap();
+        let warnings = check_definition_mismatch(&session, &new_def);
         assert_eq!(warnings.len(), 1);
         match &warnings[0] {
             Warning::DefinitionMismatch { added, removed } => {
@@ -125,7 +130,8 @@ cards:
     count: 2
 "#;
         let new_def = DeckDefinition::from_yaml(new_yaml).unwrap();
-        let (_, warnings) = load_session(&buf[..], &new_def).unwrap();
+        let session = load_session(&buf[..]).unwrap();
+        let warnings = check_definition_mismatch(&session, &new_def);
         assert_eq!(warnings.len(), 1);
         match &warnings[0] {
             Warning::DefinitionMismatch { added, removed } => {

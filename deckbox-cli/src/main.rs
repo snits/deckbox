@@ -118,13 +118,13 @@ fn load_session(name: &str) -> Result<(Session, DeckDefinition), Box<dyn std::er
     if !path.exists() {
         return Err(deckbox_core::DeckboxError::SessionNotFound(name.into()).into());
     }
-    let bytes = fs::read(&path)?;
-    // Deserialize once to get definition_path, then load definition for mismatch check
-    let session: Session = serde_yaml::from_slice(&bytes)?;
+    let file = fs::File::open(&path)?;
+    let reader = std::io::BufReader::new(file);
+    let session = persistence::load_session(reader)?;
     let def_yaml = fs::read_to_string(&session.definition_path)
         .map_err(|e| format!("cannot read definition '{}': {}", session.definition_path.display(), e))?;
     let def = DeckDefinition::from_yaml(&def_yaml)?;
-    let (session, warnings) = persistence::load_session(&bytes[..], &def)?;
+    let warnings = persistence::check_definition_mismatch(&session, &def);
     for warning in &warnings {
         match warning {
             deckbox_core::Warning::DefinitionMismatch { added, removed } => {
