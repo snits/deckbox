@@ -404,6 +404,38 @@ cards:
     }
 
     #[test]
+    fn resolve_invalid_instance_id_format_errors() {
+        let yaml = r#"
+name: "Test"
+cards:
+  - id: alpha
+    text: "Alpha card"
+"#;
+        let def = DeckDefinition::from_yaml(yaml).unwrap();
+        let err = resolve("no-colon-suffix", &def);
+        assert!(matches!(err, Err(DeckboxError::CardNotFound(_))));
+        assert!(err.unwrap_err().to_string().contains("invalid instance ID format"));
+    }
+
+    #[test]
+    fn move_cards_from_unknown_source_errors() {
+        let mut session = test_session();
+        assert!(matches!(move_cards(&mut session, &["a:1".into()], "nonexistent", "discard"), Err(DeckboxError::ContainerNotFound(_))));
+    }
+
+    #[test]
+    fn is_empty_unknown_container_errors() {
+        let session = test_session();
+        assert!(matches!(is_empty(&session, "nonexistent"), Err(DeckboxError::ContainerNotFound(_))));
+    }
+
+    #[test]
+    fn list_unknown_container_errors() {
+        let session = test_session();
+        assert!(matches!(list(&session, "nonexistent"), Err(DeckboxError::ContainerNotFound(_))));
+    }
+
+    #[test]
     fn resolve_unknown_instance_errors() {
         let yaml = r#"
 name: "Test"
