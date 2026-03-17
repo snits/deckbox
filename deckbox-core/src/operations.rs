@@ -22,8 +22,8 @@ pub fn containers(session: &Session) -> Vec<(String, usize)> {
     result
 }
 
-pub fn list(session: &Session, container: &str) -> Result<Vec<InstanceId>> {
-    session.containers.get(container).cloned()
+pub fn list<'a>(session: &'a Session, container: &str) -> Result<&'a [InstanceId]> {
+    session.containers.get(container).map(|v| v.as_slice())
         .ok_or_else(|| DeckboxError::ContainerNotFound(container.into()))
 }
 
@@ -32,9 +32,9 @@ pub fn create_container(session: &mut Session, name: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn peek(session: &Session, container: &str, count: usize) -> Result<Vec<InstanceId>> {
+pub fn peek<'a>(session: &'a Session, container: &str, count: usize) -> Result<&'a [InstanceId]> {
     if count == 0 {
-        return Ok(Vec::new());
+        return Ok(&[]);
     }
     let cards = session.containers.get(container)
         .ok_or_else(|| DeckboxError::ContainerNotFound(container.into()))?;
@@ -46,7 +46,7 @@ pub fn peek(session: &Session, container: &str, count: usize) -> Result<Vec<Inst
             container: container.into(), requested: count, available: cards.len(),
         });
     }
-    Ok(cards[cards.len() - count..].to_vec())
+    Ok(&cards[cards.len() - count..])
 }
 
 pub fn shuffle(session: &mut Session, container: &str) -> Result<()> {
@@ -122,11 +122,11 @@ pub fn find(session: &Session, instance_id: &str) -> Result<Option<String>> {
     Ok(None)
 }
 
-pub fn resolve(instance_id: &str, definition: &DeckDefinition) -> Result<CardDef> {
+pub fn resolve<'a>(instance_id: &str, definition: &'a DeckDefinition) -> Result<&'a CardDef> {
     let def_id = session::definition_id(instance_id).ok_or_else(|| {
         DeckboxError::CardNotFound(format!("invalid instance ID format: {}", instance_id))
     })?;
-    definition.cards.iter().find(|c| c.id == def_id).cloned()
+    definition.cards.iter().find(|c| c.id == def_id)
         .ok_or_else(|| DeckboxError::CardNotFound(format!("no definition for: {}", def_id)))
 }
 
