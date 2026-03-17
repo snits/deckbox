@@ -10,13 +10,13 @@ use crate::Warning;
 
 /// Serialize session state to a writer.
 pub fn save_session<W: Write>(session: &Session, writer: &mut W) -> Result<()> {
-    serde_yaml::to_writer(writer, session)
+    serde_yaml_ng::to_writer(writer, session)
         .map_err(|e| DeckboxError::YamlError(e.to_string()))
 }
 
 /// Deserialize session state from a reader.
 pub fn load_session<R: Read>(reader: R) -> Result<Session> {
-    serde_yaml::from_reader(reader)
+    serde_yaml_ng::from_reader(reader)
         .map_err(|e| DeckboxError::YamlError(e.to_string()))
 }
 
