@@ -46,6 +46,11 @@ impl DeckDefinition {
                     format!("duplicate card ID: {}", card.id),
                 ));
             }
+            if card.id.contains(':') {
+                return Err(DeckboxError::ValidationError(
+                    format!("card ID '{}' contains a colon, which conflicts with instance ID format", card.id),
+                ));
+            }
             if card.count == Some(0) {
                 return Err(DeckboxError::ValidationError(
                     format!("card '{}' has count of 0", card.id),
@@ -162,6 +167,19 @@ cards:
         let err = DeckDefinition::from_yaml(yaml).unwrap_err();
         assert!(matches!(err, DeckboxError::ValidationError(_)));
         assert!(err.to_string().contains("draw_pile"));
+    }
+
+    #[test]
+    fn reject_card_id_with_colon() {
+        let yaml = r#"
+name: "Bad Deck"
+cards:
+  - id: "bad:id"
+    text: "This card ID contains a colon"
+"#;
+        let err = DeckDefinition::from_yaml(yaml).unwrap_err();
+        assert!(matches!(err, DeckboxError::ValidationError(_)));
+        assert!(err.to_string().contains("colon"));
     }
 
     #[test]
