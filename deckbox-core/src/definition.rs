@@ -31,7 +31,7 @@ pub struct DeckDefinition {
 impl DeckDefinition {
     /// Parse a deck definition from a YAML string.
     pub fn from_yaml(yaml: &str) -> Result<Self> {
-        let def: DeckDefinition = serde_yaml::from_str(yaml)
+        let def: DeckDefinition = serde_yaml_ng::from_str(yaml)
             .map_err(|e| DeckboxError::YamlError(e.to_string()))?;
         def.validate()?;
         Ok(def)
