@@ -55,6 +55,21 @@ cards:
 | `cards`       | Yes      | List of card definitions.                                      |
 | `containers`  | No       | Additional containers beyond the default `draw_pile`. The name `draw_pile` is reserved and cannot be used here. |
 
+## Examples
+
+The `examples/` directory contains deck definitions you can try immediately:
+
+- **`poker.yaml`** — Standard 52-card deck. Shows how deckbox models traditional card games — it tracks where cards are, while game rules live in your application.
+- **`oracle.yaml`** — A solo RPG encounter oracle. Draw a card for narrative inspiration. This is deckbox's primary use case.
+
+Quick start:
+
+```bash
+deckbox new examples/poker.yaml poker --shuffle
+deckbox draw poker --count 5 --to hand
+deckbox list poker
+```
+
 ## CLI Usage
 
 ### Create a Session
