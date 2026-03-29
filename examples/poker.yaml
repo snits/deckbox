@@ -1,0 +1,117 @@
+name: "Standard Poker Deck"
+description: "A standard 52-card deck. Deckbox tracks where cards are — game rules and hand evaluation live in your application."
+containers:
+  - discard
+
+cards:
+  # Hearts
+  - id: 2-of-hearts
+    text: "Two of Hearts"
+  - id: 3-of-hearts
+    text: "Three of Hearts"
+  - id: 4-of-hearts
+    text: "Four of Hearts"
+  - id: 5-of-hearts
+    text: "Five of Hearts"
+  - id: 6-of-hearts
+    text: "Six of Hearts"
+  - id: 7-of-hearts
+    text: "Seven of Hearts"
+  - id: 8-of-hearts
+    text: "Eight of Hearts"
+  - id: 9-of-hearts
+    text: "Nine of Hearts"
+  - id: 10-of-hearts
+    text: "Ten of Hearts"
+  - id: jack-of-hearts
+    text: "Jack of Hearts"
+  - id: queen-of-hearts
+    text: "Queen of Hearts"
+  - id: king-of-hearts
+    text: "King of Hearts"
+  - id: ace-of-hearts
+    text: "Ace of Hearts"
+
+  # Diamonds
+  - id: 2-of-diamonds
+    text: "Two of Diamonds"
+  - id: 3-of-diamonds
+    text: "Three of Diamonds"
+  - id: 4-of-diamonds
+    text: "Four of Diamonds"
+  - id: 5-of-diamonds
+    text: "Five of Diamonds"
+  - id: 6-of-diamonds
+    text: "Six of Diamonds"
+  - id: 7-of-diamonds
+    text: "Seven of Diamonds"
+  - id: 8-of-diamonds
+    text: "Eight of Diamonds"
+  - id: 9-of-diamonds
+    text: "Nine of Diamonds"
+  - id: 10-of-diamonds
+    text: "Ten of Diamonds"
+  - id: jack-of-diamonds
+    text: "Jack of Diamonds"
+  - id: queen-of-diamonds
+    text: "Queen of Diamonds"
+  - id: king-of-diamonds
+    text: "King of Diamonds"
+  - id: ace-of-diamonds
+    text: "Ace of Diamonds"
+
+  # Clubs
+  - id: 2-of-clubs
+    text: "Two of Clubs"
+  - id: 3-of-clubs
+    text: "Three of Clubs"
+  - id: 4-of-clubs
+    text: "Four of Clubs"
+  - id: 5-of-clubs
+    text: "Five of Clubs"
+  - id: 6-of-clubs
+    text: "Six of Clubs"
+  - id: 7-of-clubs
+    text: "Seven of Clubs"
+  - id: 8-of-clubs
+    text: "Eight of Clubs"
+  - id: 9-of-clubs
+    text: "Nine of Clubs"
+  - id: 10-of-clubs
+    text: "Ten of Clubs"
+  - id: jack-of-clubs
+    text: "Jack of Clubs"
+  - id: queen-of-clubs
+    text: "Queen of Clubs"
+  - id: king-of-clubs
+    text: "King of Clubs"
+  - id: ace-of-clubs
+    text: "Ace of Clubs"
+
+  # Spades
+  - id: 2-of-spades
+    text: "Two of Spades"
+  - id: 3-of-spades
+    text: "Three of Spades"
+  - id: 4-of-spades
+    text: "Four of Spades"
+  - id: 5-of-spades
+    text: "Five of Spades"
+  - id: 6-of-spades
+    text: "Six of Spades"
+  - id: 7-of-spades
+    text: "Seven of Spades"
+  - id: 8-of-spades
+    text: "Eight of Spades"
+  - id: 9-of-spades
+    text: "Nine of Spades"
+  - id: 10-of-spades
+    text: "Ten of Spades"
+  - id: jack-of-spades
+    text: "Jack of Spades"
+  - id: queen-of-spades
+    text: "Queen of Spades"
+  - id: king-of-spades
+    text: "King of Spades"
+  - id: ace-of-spades
+    text: "Ace of Spades"
