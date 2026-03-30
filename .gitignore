@@ -5,5 +5,14 @@
 .dolt/
 *.db
 
+# Beads credential key
+.beads-credential-key
+
+# Dev container config (personal environment)
+.devcontainer/
+
+# Internal design docs (process artifacts)
+docs/superpowers/
+
 # Session handoff (ephemeral)
 session-handoff.md
