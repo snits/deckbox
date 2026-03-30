@@ -42,7 +42,7 @@ Rust workspace with two crates:
 
 **Containers:** Named `Vec<InstanceId>` groups. Every session starts with `draw_pile` (all cards) plus any containers declared in the definition. Unknown destination containers are auto-created on first reference by `draw` and `move_cards`. The top of a container is the last element (draw/peek take from the end).
 
-**Persistence boundary:** `deckbox-core::persistence` takes `Read`/`Write` traits. The CLI owns the actual file paths (`~/.local/share/deckbox/sessions/<name>.yaml`). On load, the CLI compares current definition card IDs against stored `definition_cards` to detect mismatches.
+**Persistence boundary:** `deckbox-core::persistence` takes `Read`/`Write` traits. The CLI owns the actual file paths (`~/.local/share/deckbox/sessions/<name>.yaml` on Linux, `~/Library/Application Support/deckbox/sessions/` on macOS). The `DECKBOX_DATA_DIR` env var overrides the base data directory. On load, the CLI compares current definition card IDs against stored `definition_cards` to detect mismatches.
 
 ### Module Responsibilities
 

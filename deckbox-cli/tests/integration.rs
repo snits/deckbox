@@ -37,7 +37,7 @@ fn new_creates_session() {
     let deck = create_test_deck(&dir);
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "test-game"])
         .output()
         .unwrap();
@@ -53,13 +53,13 @@ fn draw_shows_card_text() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "draw-test"])
         .output()
         .unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["draw", "draw-test"])
         .output()
         .unwrap();
@@ -75,13 +75,13 @@ fn list_shows_containers() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "list-test"])
         .output()
         .unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "list-test"])
         .output()
         .unwrap();
@@ -98,13 +98,13 @@ fn duplicate_session_errors() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "dupe-test"])
         .output()
         .unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "dupe-test"])
         .output()
         .unwrap();
@@ -120,13 +120,13 @@ fn draw_from_empty_errors() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "empty-test"])
         .output()
         .unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["draw", "empty-test", "--from", "discard"])
         .output()
         .unwrap();
@@ -142,19 +142,19 @@ fn sessions_lists_saved() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "session-a"])
         .output()
         .unwrap();
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "session-b"])
         .output()
         .unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["sessions"])
         .output()
         .unwrap();
@@ -171,13 +171,13 @@ fn peek_shows_top_cards() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "peek-test"])
         .output()
         .unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["peek", "peek-test", "--count", "2"])
         .output()
         .unwrap();
@@ -193,14 +193,14 @@ fn move_cards_between_containers() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "move-test"])
         .output()
         .unwrap();
 
     // Draw a card to know its instance ID
     let draw_output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["draw", "move-test", "--to", "hand"])
         .output()
         .unwrap();
@@ -214,7 +214,7 @@ fn move_cards_between_containers() {
 
     // Move the card from hand to discard
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["move", "move-test", "--cards", instance_id, "--from", "hand", "--to", "discard"])
         .output()
         .unwrap();
@@ -225,7 +225,7 @@ fn move_cards_between_containers() {
 
     // Verify the card is in discard
     let list_output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "move-test", "--container", "discard"])
         .output()
         .unwrap();
@@ -239,13 +239,13 @@ fn list_specific_container() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "listc-test"])
         .output()
         .unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "listc-test", "--container", "draw_pile"])
         .output()
         .unwrap();
@@ -262,7 +262,7 @@ fn nonexistent_session_errors() {
     let dir = TempDir::new().unwrap();
 
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["draw", "no-such-session"])
         .output()
         .unwrap();
@@ -277,21 +277,21 @@ fn full_workflow_draw_move_reshuffle() {
 
     // Create
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "workflow"])
         .output()
         .unwrap();
 
     // Draw 2 cards
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["draw", "workflow", "--count", "2", "--to", "discard"])
         .output()
         .unwrap();
 
     // List to verify state
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "workflow"])
         .output()
         .unwrap();
@@ -300,14 +300,14 @@ fn full_workflow_draw_move_reshuffle() {
 
     // Move all from discard back to draw_pile
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["move-all", "workflow", "--from", "discard", "--to", "draw_pile"])
         .output()
         .unwrap();
 
     // Shuffle
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["shuffle", "workflow"])
         .output()
         .unwrap();
@@ -315,7 +315,7 @@ fn full_workflow_draw_move_reshuffle() {
 
     // Reset
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["reset", "workflow"])
         .output()
         .unwrap();
@@ -328,21 +328,21 @@ fn reset_restores_initial_state() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "reset-test"])
         .output()
         .unwrap();
 
     // Draw 2 cards to discard
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["draw", "reset-test", "--count", "2", "--to", "discard"])
         .output()
         .unwrap();
 
     // Reset the session
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["reset", "reset-test"])
         .output()
         .unwrap();
@@ -350,7 +350,7 @@ fn reset_restores_initial_state() {
 
     // Verify draw_pile has all 4 cards again
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "reset-test", "--container", "draw_pile"])
         .output()
         .unwrap();
@@ -360,7 +360,7 @@ fn reset_restores_initial_state() {
 
     // Verify discard is empty
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "reset-test", "--container", "discard"])
         .output()
         .unwrap();
@@ -375,14 +375,14 @@ fn peek_shows_specific_cards() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "peek-specific"])
         .output()
         .unwrap();
 
     // Peek at top 1 card (unshuffled, top = last added = gamma:1)
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["peek", "peek-specific", "--count", "1"])
         .output()
         .unwrap();
@@ -399,21 +399,21 @@ fn move_all_between_containers() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "moveall-test"])
         .output()
         .unwrap();
 
     // Draw 2 cards to discard
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["draw", "moveall-test", "--count", "2", "--to", "discard"])
         .output()
         .unwrap();
 
     // Move all from discard back to draw_pile
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["move-all", "moveall-test", "--from", "discard", "--to", "draw_pile"])
         .output()
         .unwrap();
@@ -421,7 +421,7 @@ fn move_all_between_containers() {
 
     // Verify discard is empty
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "moveall-test", "--container", "discard"])
         .output()
         .unwrap();
@@ -436,7 +436,7 @@ fn definition_mismatch_warns_on_added_cards() {
     let deck = create_test_deck(&dir);
 
     deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["new", deck.to_str().unwrap(), "mismatch-test"])
         .output()
         .unwrap();
@@ -464,7 +464,7 @@ cards:
 
     // Run list to trigger loading (which checks for mismatch)
     let output = deckbox()
-        .env("XDG_DATA_HOME", dir.path())
+        .env("DECKBOX_DATA_DIR", dir.path())
         .args(["list", "mismatch-test"])
         .output()
         .unwrap();

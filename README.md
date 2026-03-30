@@ -26,11 +26,14 @@ containers:
 
 cards:
   - id: goblin-ambush
+    name: "Goblin Ambush"
     text: "A band of goblins leaps from the bushes!"
     count: 3
   - id: dragon-sighting
+    name: "Dragon Sighting"
     text: "A shadow passes overhead..."
   - id: ancient-ruins
+    name: "Ancient Ruins"
     text: "You stumble upon crumbling stone walls..."
     metadata:
       category: exploration
@@ -42,7 +45,8 @@ cards:
 | Field      | Required | Description                                                |
 |------------|----------|------------------------------------------------------------|
 | `id`       | Yes      | Unique identifier within the deck. Duplicate IDs are an error. |
-| `text`     | Yes      | Display text for the card.                                 |
+| `name`     | No       | Human-facing display name. Falls back to `id` if omitted.  |
+| `text`     | Yes      | Card content (oracle prompt, flavor text, description).    |
 | `count`    | No       | Number of copies in the deck (defaults to 1). Must be > 0. |
 | `metadata` | No       | Arbitrary key-value properties (image ref, category, etc.) |
 
@@ -124,7 +128,15 @@ deckbox sessions                                  # list all saved sessions
 
 ## Session Storage
 
-Sessions are saved to `~/.local/share/deckbox/sessions/<name>.yaml` (following XDG conventions on Linux).
+Sessions are saved to `~/.local/share/deckbox/sessions/<name>.yaml` (following XDG conventions on Linux) or `~/Library/Application Support/deckbox/sessions/` on macOS.
+
+Set `DECKBOX_DATA_DIR` to override the storage location:
+
+```bash
+DECKBOX_DATA_DIR=/path/to/data deckbox new deck.yaml my-session
+```
+
+When set, sessions are stored at `$DECKBOX_DATA_DIR/sessions/`.
 
 When loading a session, deckbox compares the current deck definition against the card IDs stored at session creation. If cards have been added or removed from the definition, a warning is printed. Use `deckbox reset <session>` to rebuild the session from the updated definition.
 

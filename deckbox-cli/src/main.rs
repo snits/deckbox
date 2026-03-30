@@ -104,9 +104,14 @@ enum Commands {
 }
 
 fn sessions_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
-    let base = dirs::data_dir()
-        .ok_or("cannot determine data directory (XDG_DATA_HOME or HOME not set)")?;
-    Ok(base.join("deckbox").join("sessions"))
+    let base = if let Ok(dir) = std::env::var("DECKBOX_DATA_DIR") {
+        PathBuf::from(dir)
+    } else {
+        dirs::data_dir()
+            .ok_or("cannot determine data directory")?
+            .join("deckbox")
+    };
+    Ok(base.join("sessions"))
 }
 
 fn session_path(name: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
