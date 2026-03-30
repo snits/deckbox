@@ -6,66 +6,91 @@ containers:
 cards:
   # Threats
   - id: gathering-storm
+    name: "Gathering Storm"
     text: "Tension has been building unseen. Whatever you feared might go wrong just became unavoidable."
   - id: old-grudge
+    name: "Old Grudge"
     text: "Someone here remembers a slight — real or imagined. The past reaches forward to complicate the present."
   - id: cornered-animal
+    name: "Cornered Animal"
     text: "A desperate figure acts without thinking. Their fear makes them dangerous, but also predictable."
 
   # Discoveries
   - id: overlooked-door
+    name: "Overlooked Door"
     text: "There's a way forward you almost missed. It's not the path you planned, but it's open — for now."
   - id: written-in-dust
+    name: "Written in Dust"
     text: "You find evidence that someone was here before you. What they left behind changes your understanding of this place."
   - id: strange-signal
+    name: "Strange Signal"
     text: "Something is communicating, but not in a way you expected. The message is clear once you know how to read it."
 
   # Twists
   - id: wrong-assumption
+    name: "Wrong Assumption"
     text: "A belief you've been acting on turns out to be false. How much of your progress was built on that mistake?"
   - id: reversed-fortune
+    name: "Reversed Fortune"
     text: "What seemed like your greatest advantage becomes a liability. What seemed like a setback reveals its hidden value."
   - id: familiar-stranger
+    name: "Familiar Stranger"
     text: "You recognize someone — or something — that shouldn't be here. The coincidence feels too precise to be accidental."
 
   # Relationships
   - id: unexpected-ally
+    name: "Unexpected Ally"
     text: "Help arrives from the last direction you'd look. Their motives aren't clear, but their timing is impeccable."
   - id: fractured-trust
+    name: "Fractured Trust"
     text: "A companion or contact has been keeping something from you. The secret itself matters less than the fact of its hiding."
   - id: unspoken-debt
+    name: "Unspoken Debt"
     text: "Someone believes you owe them. Whether or not you agree, they intend to collect."
 
   # Resources
   - id: hidden-cost
+    name: "Hidden Cost"
     text: "You can have exactly what you need — but the price is something you didn't expect to pay."
   - id: dwindling-supply
+    name: "Dwindling Supply"
     text: "A resource you took for granted is almost gone. You have enough for one more use, maybe two. Choose carefully."
   - id: abandoned-cache
+    name: "Abandoned Cache"
     text: "Someone stashed supplies here and never came back for them. The contents are useful, but their absence raises questions."
 
   # Setbacks
   - id: crumbling-ground
+    name: "Crumbling Ground"
     text: "The foundation of your current plan gives way. You're not back to square one, but you need a new path forward."
   - id: closed-window
+    name: "Closed Window"
     text: "An opportunity you were counting on has expired. The door didn't slam — it just quietly locked while you weren't looking."
   - id: bitter-lesson
+    name: "Bitter Lesson"
     text: "You succeed at what you attempted, but the outcome teaches you something uncomfortable about yourself or your methods."
 
   # Mysteries
   - id: absent-witness
+    name: "Absent Witness"
     text: "Someone who should be here is conspicuously missing. Their absence tells you more than their presence would have."
   - id: second-meaning
+    name: "Second Meaning"
     text: "Something you encountered earlier takes on a new significance. It was a clue all along — you just didn't have the context."
   - id: silent-threshold
+    name: "Silent Threshold"
     text: "You stand at a boundary between what you know and what you don't. Crossing it means committing to uncertainty."
 
   # Atmosphere and Transition
   - id: calm-before
+    name: "Calm Before"
     text: "Everything goes quiet. The stillness feels deliberate, as if the world is holding its breath. Something is about to shift."
   - id: echoes-of-purpose
+    name: "Echoes of Purpose"
     text: "You catch a glimpse of why this all matters — a reminder of what you set out to do. The path ahead feels clearer, if no easier."
   - id: tangled-web
+    name: "Tangled Web"
     text: "Two situations you thought were separate turn out to be connected. Solving one may unravel the other."
   - id: fork-in-the-road
+    name: "Fork in the Road"
     text: "Two paths forward, each with obvious advantages and hidden risks. There is no safe choice — only committed ones."

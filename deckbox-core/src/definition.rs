@@ -8,6 +8,7 @@ use crate::error::{DeckboxError, Result};
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
 pub struct CardDef {
     pub id: String,
+    pub name: Option<String>,
     pub text: String,
     pub count: Option<u32>,
     pub metadata: Option<HashMap<String, String>>,
@@ -17,6 +18,11 @@ impl CardDef {
     /// Returns the number of copies of this card (defaults to 1).
     pub fn count(&self) -> u32 {
         self.count.unwrap_or(1)
+    }
+
+    /// Returns the display name: `name` if present, otherwise `id`.
+    pub fn display_name(&self) -> &str {
+        self.name.as_deref().unwrap_or(&self.id)
     }
 }
 
@@ -202,5 +208,43 @@ cards: []
     fn reject_malformed_yaml() {
         let err = DeckDefinition::from_yaml("not: valid: yaml: [").unwrap_err();
         assert!(matches!(err, DeckboxError::YamlError(_)));
+    }
+
+    #[test]
+    fn parse_card_with_name() {
+        let yaml = r#"
+name: "Test Deck"
+cards:
+  - id: aisha-kandisha
+    name: "Aisha Kandisha"
+    text: "A water spirit of tremendous power haunts the riverbank."
+"#;
+        let def = DeckDefinition::from_yaml(yaml).unwrap();
+        assert_eq!(def.cards[0].name, Some("Aisha Kandisha".to_string()));
+    }
+
+    #[test]
+    fn card_without_name_has_none() {
+        let def = DeckDefinition::from_yaml(MINIMAL_YAML).unwrap();
+        assert_eq!(def.cards[0].name, None);
+    }
+
+    #[test]
+    fn display_name_returns_name_when_present() {
+        let yaml = r#"
+name: "Test Deck"
+cards:
+  - id: aisha-kandisha
+    name: "Aisha Kandisha"
+    text: "A water spirit"
+"#;
+        let def = DeckDefinition::from_yaml(yaml).unwrap();
+        assert_eq!(def.cards[0].display_name(), "Aisha Kandisha");
+    }
+
+    #[test]
+    fn display_name_falls_back_to_id() {
+        let def = DeckDefinition::from_yaml(MINIMAL_YAML).unwrap();
+        assert_eq!(def.cards[0].display_name(), "card-one");
     }
 }
