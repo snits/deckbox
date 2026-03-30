@@ -3,6 +3,8 @@ name = "deckbox-cli"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+description = "CLI for managing decks of cards with draw-without-replacement semantics"
+repository = "https://github.com/snits/deckbox"
 
 [[bin]]
 name = "deckbox"
