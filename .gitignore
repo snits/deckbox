@@ -9,13 +9,14 @@
 .beads-credential-key
 
 # Dev container config (personal environment)
-.devcontainer/
+.devcontainer
 
 # Internal design docs (process artifacts)
 docs/superpowers/
 
 # Session handoff (ephemeral)
 session-handoff.md
-.claude/
-.beads/
-/.scratchpad/
+.claude
+.beads
+.scratchpad
+.worktrees
