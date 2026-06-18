@@ -50,10 +50,15 @@ pub fn peek<'a>(session: &'a Session, container: &str, count: usize) -> Result<&
 }
 
 pub fn shuffle(session: &mut Session, container: &str) -> Result<()> {
+    shuffle_with_rng(session, container, &mut rand::thread_rng())
+}
+
+/// Shuffle a container with a caller-supplied RNG. Seeding the RNG
+/// (e.g. `rand::rngs::StdRng::seed_from_u64`) yields reproducible draws.
+pub fn shuffle_with_rng(session: &mut Session, container: &str, rng: &mut impl rand::Rng) -> Result<()> {
     let cards = session.containers.get_mut(container)
         .ok_or_else(|| DeckboxError::ContainerNotFound(container.into()))?;
-    let mut rng = rand::thread_rng();
-    cards.shuffle(&mut rng);
+    cards.shuffle(rng);
     Ok(())
 }
 
@@ -225,15 +230,7 @@ cards:
 
     #[test]
     fn shuffle_changes_order() {
-        let yaml = r#"
-name: "Big"
-cards:
-  - id: c
-    text: "C"
-    count: 20
-"#;
-        let def = DeckDefinition::from_yaml(yaml).unwrap();
-        let mut session = Session::new("test", std::path::PathBuf::from("/test/deck.yaml"), &def, false);
+        let mut session = big_session();
         let before: Vec<String> = session.containers["draw_pile"].clone();
         shuffle(&mut session, "draw_pile").unwrap();
         let after: Vec<String> = session.containers["draw_pile"].clone();
@@ -245,6 +242,50 @@ cards:
     fn shuffle_unknown_container_errors() {
         let mut session = test_session();
         assert!(matches!(shuffle(&mut session, "nonexistent"), Err(DeckboxError::ContainerNotFound(_))));
+    }
+
+    fn big_session() -> Session {
+        let yaml = r#"
+name: "Big"
+cards:
+  - id: c
+    text: "C"
+    count: 20
+"#;
+        let def = DeckDefinition::from_yaml(yaml).unwrap();
+        Session::new("test", std::path::PathBuf::from("/test/deck.yaml"), &def, false)
+    }
+
+    #[test]
+    fn shuffle_with_rng_same_seed_is_reproducible() {
+        use rand::rngs::StdRng;
+        use rand::SeedableRng;
+        let mut a = big_session();
+        let mut b = big_session();
+        shuffle_with_rng(&mut a, "draw_pile", &mut StdRng::seed_from_u64(42)).unwrap();
+        shuffle_with_rng(&mut b, "draw_pile", &mut StdRng::seed_from_u64(42)).unwrap();
+        assert_eq!(a.containers["draw_pile"], b.containers["draw_pile"]);
+    }
+
+    #[test]
+    fn shuffle_with_rng_different_seeds_differ() {
+        use rand::rngs::StdRng;
+        use rand::SeedableRng;
+        let mut a = big_session();
+        let mut b = big_session();
+        shuffle_with_rng(&mut a, "draw_pile", &mut StdRng::seed_from_u64(1)).unwrap();
+        shuffle_with_rng(&mut b, "draw_pile", &mut StdRng::seed_from_u64(2)).unwrap();
+        // Different seeds yield independent permutations; a collision across 20! orderings is vanishingly unlikely.
+        assert_ne!(a.containers["draw_pile"], b.containers["draw_pile"]);
+    }
+
+    #[test]
+    fn shuffle_with_rng_unknown_container_errors() {
+        use rand::rngs::StdRng;
+        use rand::SeedableRng;
+        let mut session = test_session();
+        let result = shuffle_with_rng(&mut session, "nonexistent", &mut StdRng::seed_from_u64(0));
+        assert!(matches!(result, Err(DeckboxError::ContainerNotFound(_))));
     }
 
     #[test]
