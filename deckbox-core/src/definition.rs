@@ -1,11 +1,11 @@
 // ABOUTME: Deck and card definitions parsed from YAML files.
 // ABOUTME: Handles validation of card IDs, counts, and container names.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use crate::error::{DeckboxError, Result};
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CardDef {
     pub id: String,
     pub text: String,
@@ -20,7 +20,7 @@ impl CardDef {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DeckDefinition {
     pub name: String,
     pub description: Option<String>,
@@ -202,5 +202,13 @@ cards: []
     fn reject_malformed_yaml() {
         let err = DeckDefinition::from_yaml("not: valid: yaml: [").unwrap_err();
         assert!(matches!(err, DeckboxError::YamlError(_)));
+    }
+
+    #[test]
+    fn definition_round_trips_through_serde() {
+        let def = DeckDefinition::from_yaml(FULL_YAML).unwrap();
+        let serialized = serde_yaml_ng::to_string(&def).unwrap();
+        let back: DeckDefinition = serde_yaml_ng::from_str(&serialized).unwrap();
+        assert_eq!(def, back);
     }
 }
