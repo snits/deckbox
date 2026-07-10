@@ -43,6 +43,7 @@ cards:
 |------------|----------|------------------------------------------------------------|
 | `id`       | Yes      | Unique identifier within the deck. Duplicate IDs are an error. |
 | `text`     | Yes      | Display text for the card.                                 |
+| `title`    | No       | Display title for the card.                                |
 | `count`    | No       | Number of copies in the deck (defaults to 1). Must be > 0. |
 | `metadata` | No       | Arbitrary key-value properties (image ref, category, etc.) |
 
