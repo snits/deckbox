@@ -336,7 +336,7 @@ cards:
         let mut session = test_session();
         let drawn = draw(&mut session, "draw_pile", "drawn", 2).unwrap();
         let card = drawn[0].clone();
-        move_cards(&mut session, &[card.clone()], "drawn", "discard").unwrap();
+        move_cards(&mut session, std::slice::from_ref(&card), "drawn", "discard").unwrap();
         assert_eq!(remaining(&session, "drawn").unwrap(), 1);
         assert_eq!(remaining(&session, "discard").unwrap(), 1);
         assert!(session.containers["discard"].contains(&card));
@@ -502,7 +502,7 @@ cards:
         let mut session = test_session();
         let drawn = draw(&mut session, "draw_pile", "hand", 3).unwrap();
         let card = drawn[0].clone();
-        move_cards(&mut session, &[card.clone()], "hand", "hand").unwrap();
+        move_cards(&mut session, std::slice::from_ref(&card), "hand", "hand").unwrap();
         assert_eq!(remaining(&session, "hand").unwrap(), 3);
         assert!(session.containers["hand"].contains(&card));
     }
