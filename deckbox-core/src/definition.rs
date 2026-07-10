@@ -9,6 +9,7 @@ use crate::error::{DeckboxError, Result};
 pub struct CardDef {
     pub id: String,
     pub text: String,
+    pub title: Option<String>,
     pub count: Option<u32>,
     pub metadata: Option<HashMap<String, String>>,
 }
@@ -128,6 +129,41 @@ cards:
         let meta = def.cards[2].metadata.as_ref().unwrap();
         assert_eq!(meta.get("category").unwrap(), "exploration");
         assert_eq!(def.containers.as_ref().unwrap(), &vec!["discard".to_string()]);
+    }
+
+    #[test]
+    fn parse_card_with_title() {
+        let yaml = r#"
+name: "Titled Deck"
+cards:
+  - id: goblin-ambush
+    title: "Goblin Ambush"
+    text: "A band of goblins leaps from the bushes!"
+"#;
+        let def = DeckDefinition::from_yaml(yaml).unwrap();
+        assert_eq!(def.cards[0].title.as_deref(), Some("Goblin Ambush"));
+    }
+
+    #[test]
+    fn card_without_title_is_none() {
+        let def = DeckDefinition::from_yaml(MINIMAL_YAML).unwrap();
+        assert!(def.cards[0].title.is_none());
+    }
+
+    #[test]
+    fn title_round_trips_through_serde() {
+        let yaml = r#"
+name: "Titled Deck"
+cards:
+  - id: goblin-ambush
+    title: "Goblin Ambush"
+    text: "A band of goblins leaps from the bushes!"
+"#;
+        let def = DeckDefinition::from_yaml(yaml).unwrap();
+        let serialized = serde_yaml_ng::to_string(&def).unwrap();
+        let back: DeckDefinition = serde_yaml_ng::from_str(&serialized).unwrap();
+        assert_eq!(def, back);
+        assert_eq!(back.cards[0].title.as_deref(), Some("Goblin Ambush"));
     }
 
     #[test]
