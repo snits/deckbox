@@ -48,14 +48,31 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function isValidCard(value: unknown): value is Card {
+  return isObject(value) && Array.isArray(value.meta);
+}
+
+function isValidDeck(value: unknown): value is Deck {
+  return (
+    isObject(value) &&
+    Array.isArray(value.cards) &&
+    value.cards.every(isValidCard) &&
+    Array.isArray(value.containers)
+  );
+}
+
 // Validates a blob read back from localStorage. Returns a usable document, or
 // null when the shape has drifted or is corrupt — the caller then keeps the
 // already-seeded current state instead of crashing on a stale/foreign schema.
+// Malformed decks within an otherwise-valid document are dropped rather than
+// rejecting the whole document; if none survive, this falls back to null too.
 function coerceDocument(persisted: unknown): PersistedDoc | null {
   if (!isObject(persisted)) return null;
-  if (!Array.isArray(persisted.decks) || !persisted.decks.every(isObject)) return null;
+  if (!Array.isArray(persisted.decks)) return null;
+  const decks = persisted.decks.filter(isValidDeck);
+  if (!decks.length) return null;
   const selUid = typeof persisted.selUid === 'string' ? persisted.selUid : null;
-  return { decks: persisted.decks as unknown as Deck[], selUid };
+  return { decks, selUid };
 }
 
 export const useWorkspace = create<WorkspaceState>()(
