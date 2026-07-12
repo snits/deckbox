@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html>
+  <head>
+<style data-omelette-injected>html,body{background:transparent}</style><script data-omelette-injected>(()=>{{const W=new URLSearchParams(location.search).get("theme");if(W==="light"||W==="dark"){document.documentElement.dataset.theme=W}}{const W=()=>{try{if(document.querySelector('meta[name="color-scheme"]'))return;const V=getComputedStyle(document.documentElement).getPropertyValue("color-scheme").trim();if(V&&V!=="normal")return;const z=(j)=>{if(!j)return null;const H=getComputedStyle(j).backgroundColor.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/);if(!H)return null;const F=H[4]==null?1:parseFloat(H[4])/(H[4].endsWith("%")?100:1);if(F<0.99)return null;return[+H[1],+H[2],+H[3]]};const G=z(document.body)||z(document.documentElement);if(!G)return;const K=(j)=>{const H=j/255;return H<=0.04045?H/12.92:((H+0.055)/1.055)**2.4};const D=0.2126*K(G[0])+0.7152*K(G[1])+0.0722*K(G[2]);document.documentElement.style.setProperty("color-scheme",D<0.4?"dark":"light")}catch{}};if(document.readyState==="complete")W();else window.addEventListener("load",W)}var b=["https://claude.ai","https://preview.claude.ai","https://f9273867-ebec-4676-9bb9-152758eb2a9b.claudeusercontent.com"];var p=true;var O=30000;var n=3000;document.addEventListener("DOMContentLoaded",()=>{const W=window.Babel;const V="om-src-id";if(W&&W.registerPlugin&&!(W.availablePlugins&&W.availablePlugins[V])){W.registerPlugin(V,({types:D})=>({visitor:{JSXOpeningElement(j,H){const F=j.node;if(F.name&&F.name.type==="JSXMemberExpression")return;for(let Q=0;Q<F.attributes.length;Q++){const $=F.attributes[Q];if($.type==="JSXAttribute"&&$.name&&$.name.name==="data-om-id")return}const P=H.file&&H.file.opts&&H.file.opts.filename||"?";const R=F.loc&&F.loc.start;const J=`jsx:${P}:${F.start??0}:${R?R.line:0}:${R?R.column+1:0}`;F.attributes.push(D.jsxAttribute(D.jsxIdentifier("data-om-id"),D.stringLiteral(J)))}}}))}const z="om-text-extract";let G=false;if(p&&W&&W.registerPlugin&&!(W.availablePlugins&&W.availablePlugins[z])){const D=window.React;if(D&&D.useSyncExternalStore&&D.createElement){G=true;const j={};const H=new Set;let F=0;window.__omTextO=j;window.__omTextSet=(J)=>{for(const Q in J){const $=J[Q];if($==null)delete j[Q];else j[Q]=$}F++;H.forEach((Q)=>Q())};const P=(J)=>{H.add(J);return()=>H.delete(J)};const R=()=>F;window.__OmT=function J(Q){D.useSyncExternalStore(P,R,R);return D.createElement("span",{"data-om-text":Q.i,className:"__om-t"},Q.i in j?j[Q.i]:Q.children)};W.registerPlugin(z,({types:J})=>{const Q={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const $={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const Y=(q,M)=>J.logicalExpression("??",J.memberExpression(J.logicalExpression("||",J.memberExpression(J.identifier("window"),J.identifier("__omTextO")),J.objectExpression([])),J.stringLiteral(q),true),M);const Z=(q)=>q.file&&q.file.opts&&q.file.opts.filename||"?";const B=(q)=>q.file&&q.file.code||"";const U=(q,M)=>{const L=(X)=>X&&X.start!=null&&X.end!=null&&(X.type==="StringLiteral"||X.type==="TemplateLiteral"&&X.expressions.length===0)?[X.start,X.end]:null;const N=L(M);if(N)return N;if(M&&M.type==="Identifier"){const X=q.scope.getBinding(M.name);if(X&&X.constant&&X.path.node.type==="VariableDeclarator"){return L(X.path.node.init)}}return null};const x=(q,M,L)=>{const N=q.node;let X=false;const f=(w,A)=>{X=true;return J.jsxElement(J.jsxOpeningElement(J.jsxIdentifier("__OmT"),[J.jsxAttribute(J.jsxIdentifier("i"),J.stringLiteral(w))],false),J.jsxClosingElement(J.jsxIdentifier("__OmT")),[A],false)};const C=N.children.map((w)=>{if(w.type==="JSXText"){if(w.start==null||w.end==null)return w;const A=L.slice(w.start,w.end);const k=A.length-A.trimStart().length;const u=A.length-A.trimEnd().length;if(k+u>=A.length)return w;return f(`txt:${M}:${w.start+k}:${w.end-u}`,w)}if(w.type==="JSXExpressionContainer"){const A=U(q,w.expression);if(A)return f(`str:${M}:${A[0]}:${A[1]}`,w)}return w});if(X)N.children=C};return{visitor:{JSXOpeningElement(q,M){const L=q.node;const N=Z(M);const X={};for(let f=0;f<L.attributes.length;f++){const C=L.attributes[f];if(C.type!=="JSXAttribute"||!C.name)continue;const w=C.name.name;if(!$[w])continue;if(!C.value||C.value.type!=="StringLiteral")continue;if(C.value.start==null||C.value.end==null)continue;const A=`txt:${N}:${C.value.start}:${C.value.end}`;X[w]=A;C.value=J.jsxExpressionContainer(Y(A,J.stringLiteral(C.value.value)))}if(Object.keys(X).length){L.attributes.push(J.jsxAttribute(J.jsxIdentifier("data-om-text-attrs"),J.stringLiteral(JSON.stringify(X))))}},JSXElement(q,M){const L=q.node.openingElement;const N=L&&L.name&&L.name.name;if(N==="__OmT")return;if(typeof N==="string"&&Q[N])return;x(q,Z(M),B(M))},JSXFragment(q,M){x(q,Z(M),B(M))}}}})}}const K=G?["transform-react-jsx-source",V,z]:["transform-react-jsx-source",V];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((D,j)=>{const H=D.getAttribute("data-plugins")||"";const F=K.filter((P)=>H.indexOf(P)<0);if(F.length){D.setAttribute("data-plugins",H?`${H},${F.join(",")}`:F.join(","))}if(!D.hasAttribute("data-filename")){D.setAttribute("data-filename",D.getAttribute("src")||`inline-${j}`)}})});var v=window.parent;var g="not editable here — open the project in the Claude Design editor to save";var d=()=>Promise.resolve({persisted:false,noHost:true,reason:g});var S=d;var h="data/storage.json";var i=()=>{try{const W=new URL(document.baseURI);const V=W.pathname.match(/\/projects\/([^/]+)\/serve\//);if(V)return V[1];return W.hostname.split(".")[0]||""}catch{return location.hostname.split(".")[0]||""}};var o=()=>{try{const W=new URL(document.baseURI);const V=W.pathname.indexOf("/serve/");if(V>=0)return W.origin+W.pathname.slice(0,V+"/serve/".length)+h}catch{}return"./"+h};var I=null;var _=()=>{if(!I){I=fetch(o(),{cache:"no-store"}).then((W)=>{if(W.ok)return W.text();return W.status===404?"":null}).catch(()=>null).then((W)=>{if(W===null){I=null;return null}const V=new Map;if(!W)return V;let z;try{z=JSON.parse(W)}catch{console.warn("[omelette.storage] "+h+" is not valid JSON; treating the store as unreadable so a save cannot overwrite the "+"hand-edited bytes. Fix the JSON (or delete the file) to re-enable persistence.");I=null;return null}if(z===null||typeof z!=="object"||Array.isArray(z)){console.warn("[omelette.storage] "+h+" doesn't hold a JSON object; treating the store as unreadable so a save cannot "+"overwrite the hand-edited bytes. Make the top level a JSON object to re-enable persistence.");I=null;return null}const G=z;if("data"in G){const K=G.data;if(K===null||typeof K!=="object"||Array.isArray(K)){console.warn("[omelette.storage] "+h+' has a "data" field that is not a JSON object; treating the store as unreadable so a '+'save cannot overwrite the hand-edited bytes. Make "data" a JSON object to re-enable persistence.');I=null;return null}const D=G._meta;const j=D!==null&&typeof D==="object"?D.project:undefined;if(typeof j==="string"&&j!==""&&j!==i())return V;for(const H of Object.keys(K))V.set(H,K[H]);return V}for(const K of Object.keys(G)){if(K!=="_meta")V.set(K,G[K])}return V})}return I};var y=(W)=>S(h,JSON.stringify({_meta:{project:i(),version:1},data:Object.fromEntries(W)},null,2));var m=Promise.resolve();var T=(W)=>{const V=m.then(W);m=V.then(()=>{return},()=>{return});return V};var s=/sk-(?:ant-)?[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{20,}|xox[a-z]-[A-Za-z0-9][A-Za-z0-9-]{9,}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----/;var a=/password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|credential/i;var r=(W,V,z)=>{if(s.test(V)||a.test(W)&&typeof z==="string"&&z.length>=8){console.warn('[omelette.storage] the value for "'+W+'" looks like a credential. The storage file is a plaintext project file — visible to '+"everyone with project access and copied when the project is duplicated. Do not store secrets here.")}};var l={persisted:false,reason:"could not load the existing store — not overwriting it"};var c={persisted:false,reason:"stored value changed since a failed read — re-read this key before saving"};var E=new Set;var t={get:(W)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.get: key must be a string"))}return T(_).then((V)=>{if(V===null){E.add(W);return null}E.delete(W);if(!V.has(W))return null;const z=V.get(W);return z==null?null:JSON.parse(JSON.stringify(z))})},set:(W,V)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.set: key must be a string"))}let z;try{z=JSON.stringify(V)}catch(K){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable ("+String(K)+")"))}if(z===undefined){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable"))}r(W,z,V);const G=JSON.parse(z);return T(()=>_().then((K)=>{if(K===null)return l;if(E.has(W)){if(K.has(W))return c;E.delete(W)}K.set(W,G);return y(K)}))},delete:(W)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.delete: key must be a string"))}return T(()=>_().then((V)=>{if(V===null)return l;if(E.has(W)){if(V.has(W))return c;E.delete(W)}V.delete(W);return y(V)}))},keys:()=>T(_).then((W)=>W===null?[]:Array.from(W.keys()))};window.omelette={writeFile:(W,V)=>S(W,V).then((z)=>{if(!z.persisted&&!z.noHost){throw new Error(z.reason||"write failed")}}),storage:t};if(v&&v!==window){const W=(J,Q)=>{try{v.postMessage({__omelette_log:true,type:J,data:Q},"*")}catch{}};["log","warn","error"].forEach((J)=>{const Q=console[J];console[J]=(...$)=>{const Y=$.map((Z)=>{try{return typeof Z==="object"?JSON.stringify(Z):String(Z)}catch{try{return String(Z)}catch{return"[unstringifiable]"}}}).join(" ");W(J,Y);Q.apply(console,$)}});window.addEventListener("error",(J)=>{const Q=J.target;if(Q&&Q!==window&&Q.tagName){const $=Q.src||Q.href||"";W("resource_error",`${Q.tagName} failed to load: ${$}`)}else{W("error",`${J.message||"Unknown error"} at ${J.filename||"?"}:${J.lineno||0}:${J.colno||0}`)}},true);window.addEventListener("unhandledrejection",(J)=>{const Q=J.reason;const $=Q instanceof Error?`${Q.message} ${Q.stack}`:String(Q);W("error",`Unhandled rejection: ${$}`)});window.addEventListener("click",(J)=>{if(J.defaultPrevented||J.button!==0)return;if(J.metaKey||J.ctrlKey||J.shiftKey||J.altKey)return;const Q=J.composedPath?J.composedPath():[];const $=["button","input","select","textarea","summary","label"];let Y=null;for(const x of Q){if(!(x instanceof Element))continue;if(x.localName==="a"){if(!(x instanceof HTMLAnchorElement))return;Y=x;break}if($.indexOf(x.localName)!==-1)return}if(!Y)return;if(Y.isContentEditable)return;const Z=Y.closest("[contenteditable]");if(Z&&Z.getAttribute("contenteditable")!=="false")return;const B=(Y.getAttribute("target")||"_self").toLowerCase();if(B!=="_self"&&B!=="_top"&&B!=="_parent")return;let U;try{U=new URL(Y.href)}catch{return}if(U.protocol!=="http:"&&U.protocol!=="https:")return;if(location.origin==="null")return;if(U.origin===location.origin)return;J.preventDefault();window.open(U.href,"_blank","noopener,noreferrer")});const V=()=>{try{v.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(window.ResizeObserver)new ResizeObserver(V).observe(document.documentElement);const z=()=>{V();if(!document.querySelector('script[type="text/babel"],script[type="text/jsx"]'))return;const J=()=>document.getElementById("root")||document.querySelector("body > div[id]");const Q=J()?.firstElementChild??null;let $=0;const Y=()=>{const Z=J();if(Z&&Z.firstElementChild!==Q||++$>30){V();return}setTimeout(Y,100)};setTimeout(Y,100)};if(document.readyState==="complete")z();else window.addEventListener("load",z);const G={};let K=0;const D=(J)=>new Promise((Q,$)=>{if(!b.length){$(new Error("claude.complete: no parent origin"));return}const Y=`c${++K}`;const Z=()=>setTimeout(()=>{delete G[Y];$(new Error(`claude.complete: no data for ${O/1000}s`))},O);const B=Z();G[Y]={resolve:Q,reject:$,text:"",t:B,arm:Z};try{for(const U of b){v.postMessage({__om_api:true,id:Y,body:J},U)}}catch(U){clearTimeout(B);delete G[Y];$(U)}});const j=8;const H=async(J,Q)=>{if(!Array.isArray(J.messages)){throw new Error("claude.complete: tools require a messages array")}const $=J.messages.slice();const Y={...J,tools:J.tools.map((U)=>{if(U===null||typeof U!=="object")return U;const x={};for(const q of Object.keys(U)){if(typeof U[q]!=="function")x[q]=U[q]}return x})};const Z=Y.tool_choice;const B=Z!=null&&(Z.type==="any"||Z.type==="tool")?{...Y,tool_choice:Z.disable_parallel_tool_use!==undefined?{type:"auto",disable_parallel_tool_use:Z.disable_parallel_tool_use}:{type:"auto"}}:Y;for(let U=0;U<j;U++){const x=await D({...U===0?Y:B,messages:$});const q=x.message;const M=q&&Array.isArray(q.content)?q.content:null;const L=M?M.filter((X)=>X?.type==="tool_use"):[];if(q?.stop_reason!=="tool_use"||L.length===0){return x.text}const N=[];for(const X of L){const f=Q.get(X.name);if(!f){N.push({type:"tool_result",tool_use_id:X.id,content:`no handler for tool "${X.name}"`,is_error:true});continue}try{const C=await f(X.input);const w=typeof C==="string"?C:R(C)??"";N.push({type:"tool_result",tool_use_id:X.id,content:w})}catch(C){N.push({type:"tool_result",tool_use_id:X.id,content:String(C?.message??C??"tool handler failed"),is_error:true})}}$.push({role:"assistant",content:M},{role:"user",content:N})}throw new Error(`claude.complete: exceeded ${j} tool turns`)};window.claude={complete(J){const Q=J;if(Q!==null&&typeof Q==="object"&&Array.isArray(Q.tools)&&Q.tools.some(($)=>$!==null&&typeof $==="object"&&typeof $.run==="function")){const $=new Map;for(const Y of Q.tools){if(Y!==null&&typeof Y==="object"&&typeof Y.run==="function"){$.set(String(Y.name),Y.run)}}return H(Q,$)}return D(J).then(($)=>$.text)}};const F={};let P=0;S=(J,Q)=>new Promise(($)=>{if(!b.length){$({persisted:false,noHost:true,reason:g});return}const Y=`f${++P}`;const Z=setTimeout(()=>{delete F[Y];$({persisted:false,noHost:true,reason:g})},n);F[Y]={settle:$,t:Z};try{for(const B of b){v.postMessage({__om_file:true,id:Y,op:"write",path:J,content:Q},B)}}catch{clearTimeout(Z);delete F[Y];$({persisted:false,noHost:true,reason:g})}});const R=(J)=>{try{return JSON.stringify(J)}catch{return JSON.stringify(String(J))}};window.addEventListener("message",(J)=>{if(b.indexOf(J.origin)<0)return;if(J.source!==v)return;const Q=J.data;if(!Q)return;if(Q.type==="omelette-preview-refresh"){if(typeof Q.token!=="string"||!/^[0-9a-f.-]+(\.(rc|pr-[0-9]+))?(\.[0-9]+\.[0-9a-f]{16})?$/.test(Q.token))return;const Z=Math.max(1,Math.floor((Q.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+Q.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+Z;return}if(Q.__om_file_r){const Z=F[Q.id];if(!Z)return;clearTimeout(Z.t);delete F[Q.id];Z.settle(Q.ok?{persisted:true}:{persisted:false,reason:Q.error||"write failed"});return}if(Q.__om_api_r){const Z=G[Q.id];if(!Z)return;if(Q.error!=null){clearTimeout(Z.t);delete G[Q.id];Z.reject(new Error(Q.error));return}if(Q.chunk!=null){clearTimeout(Z.t);Z.t=Z.arm();Z.text+=Q.chunk;return}if(Q.done){clearTimeout(Z.t);delete G[Q.id];Z.resolve({text:Q.text!=null?Q.text:Z.text,message:Q.message});return}return}if(!Q.__om_eval)return;const $=Q;const Y=(Z)=>{J.source.postMessage({...Z,__om_eval_r:1,id:$.id},J.origin)};try{const Z=(0,eval)($.code);if(Z&&typeof Z.then==="function"){Z.then((B)=>Y({ok:1,v:R(B)}),(B)=>Y({ok:0,e:String(B)}))}else{Y({ok:1,v:R(Z)})}}catch(Z){Y({ok:0,e:String(Z)})}})}})();
+</script>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="./support.js"></script>
+  </head>
+  <body>
+    <x-dc>
+      <helmet data-dc-atomics>
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;600;700&amp;family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet" />
+        <style>
+          html,body{margin:0;padding:0}
+          .app{height:100vh;display:flex;flex-direction:column;background:#241a2f;background-image:radial-gradient(1200px 700px at 12% -8%, rgba(255,190,120,.09), transparent 60%),radial-gradient(1000px 800px at 105% 105%, rgba(110,70,150,.16), transparent 55%),radial-gradient(rgba(255,245,225,.02) 1px, transparent 1.4px);background-size:auto,auto,4px 4px;color:#e9e0d0;font-family:Spectral,Georgia,serif;font-size:15px}
+          .hdr{display:flex;align-items:center;gap:20px;padding:10px 22px;background:#1c1426;border-bottom:3px double #a8862e;flex:0 0 auto}
+          .brand1{font-family:'Cormorant SC',serif;font-size:25px;font-weight:700;color:#e6c86e;line-height:1}
+          .brand2{font-family:'Cormorant SC',serif;font-size:11px;letter-spacing:4px;color:#9c8253;line-height:1;margin-top:3px}
+          .hdiv{width:1px;height:34px;background:#4a3a5c}
+          .hlabel{font-size:10px;letter-spacing:2px;color:#8d7ba6;text-transform:uppercase}
+          .hname{font-size:16px;color:#f0e8d8}
+          .pill{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:6px 13px;border-radius:11px;border:1px solid}
+          .pill-ok{border-color:#3f7d74;background:rgba(63,125,116,.16);color:#bcdcd2}
+          .pill-ok .dot{background:#5fb3a1;box-shadow:0 0 8px #5fb3a1}
+          .pill-bad{border-color:#9a3a28;background:rgba(170,60,40,.2);color:#f0b5a4}
+          .pill-bad .dot{background:#e07a5e;box-shadow:0 0 8px #e07a5e}
+          .dot{width:8px;height:8px;border-radius:50%}
+          .rail{flex:0 0 252px;display:flex;flex-direction:column;background:#2b2138;border-right:1px solid #4a3a5c;min-height:0}
+          .railhd{font-family:'Cormorant SC',serif;font-size:13px;letter-spacing:2.5px;color:#a48cc4;padding:14px 16px 8px}
+          .railbody{flex:1;overflow-y:auto;padding:0 10px 12px;min-height:0}
+          .deckrow{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 10px;border:1px solid transparent;border-left:3px solid transparent;border-radius:3px;cursor:pointer;margin-bottom:2px}
+          .deckrow:hover{background:#352a44}
+          .deckrow.on{background:#3d2f4e;border-color:#4a3a5c;border-left-color:#c9a227}
+          .drname{flex:1;font-size:13.5px;color:#ddd2c0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          .deckrow.on .drname{color:#f0e4c8;font-weight:600}
+          .drcount{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8d7ba6}
+          .drx{flex:0 0 auto;width:20px;height:20px;border:0;border-radius:3px;background:transparent;color:#8d7ba6;font-size:12px;cursor:pointer;visibility:hidden;line-height:1}
+          .deckrow:hover .drx{visibility:visible}
+          .drx:hover{background:#54324a;color:#e08a76}
+          .railbtn{display:block;width:100%;text-align:center;padding:8px;margin-top:8px;border:1px dashed #6a5588;border-radius:3px;background:transparent;color:#a48cc4;font-family:Spectral,serif;font-size:13px;cursor:pointer}
+          .railbtn:hover{background:#352a44;color:#c9b8e0}
+          .banner{margin:8px 10px 0;padding:8px 10px;border-radius:3px;font-size:12px;line-height:1.45;display:flex;gap:8px;align-items:flex-start}
+          .banner-err{border:1px solid #8f3a28;background:rgba(160,70,45,.18);color:#eec0ae}
+          .banner-note{border:1px solid #6b5a2e;background:rgba(180,150,60,.12);color:#dcc89a}
+          .bx{border:0;background:transparent;color:inherit;cursor:pointer;font-size:12px;padding:0;line-height:1.4}
+          .center{flex:1;overflow-y:auto;padding:22px 26px;min-height:0}
+          .empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:#9c8bb0;text-align:center}
+          .cardback{width:76px;height:108px;border-radius:6px;border:1px solid #a8862e;box-shadow:inset 0 0 0 3px #2b2138, inset 0 0 0 4px rgba(201,162,39,.55), 0 4px 14px rgba(10,5,20,.5);background-color:#3d2f4e;background-image:repeating-linear-gradient(45deg, rgba(201,162,39,.13) 0 6px, transparent 6px 12px);display:flex;align-items:center;justify-content:center;font-size:30px;color:#c9a227}
+          .emptyhd{font-family:'Cormorant SC',serif;font-size:22px;color:#a48cc4}
+          .edwrap{max-width:700px;margin:0 auto}
+          .flabel{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#8d7ba6;margin-bottom:5px}
+          .flabel .opt{text-transform:none;letter-spacing:0;color:#6f5f88}
+          .inp{width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #55446b;border-radius:3px;background:#1e1629;color:#e9e0d0;font-family:Spectral,serif;font-size:14px}
+          .inp:focus{outline:none;border-color:#c9a227}
+          .inp.big{font-family:'Cormorant SC',serif;font-size:20px;color:#f0e4c8}
+          .inp.mono{font-family:'JetBrains Mono',monospace;font-size:12.5px}
+          .inp.bad{border-color:#c0452f}
+          .sect{display:flex;align-items:center;gap:10px;border-bottom:1px solid #4a3a5c;padding-bottom:6px;margin:26px 0 12px}
+          .secthd{font-family:'Cormorant SC',serif;font-size:15px;letter-spacing:2px;color:#c9b16a}
+          .sectnote{font-size:11.5px;color:#9c8bb0;font-style:italic}
+          .btn{padding:6px 12px;border-radius:3px;border:1px solid #6a5588;background:#352a44;color:#c9b8e0;font-family:Spectral,serif;font-size:12.5px;cursor:pointer}
+          .btn:hover{background:#3d2f4e}
+          .btn.gold{border-color:#a8862e;background:#8a6d1f;color:#f7ecc8;font-weight:600}
+          .btn.gold:hover{background:#a3821f}
+          .btn.dis{opacity:.45;cursor:default;pointer-events:none}
+          .ctrow{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:8px}
+          .xbtn{width:34px;height:34px;border-radius:3px;border:1px solid #6a5588;background:transparent;color:#c07a68;cursor:pointer;font-size:13px}
+          .xbtn:hover{background:#54324a;border-color:#8f3a28}
+          .card{border:1px solid #c9b384;border-radius:4px;background:#f5eddc;color:#3a2f2a;margin-bottom:10px;box-shadow:inset 0 0 0 2px #f5eddc, inset 0 0 0 3px rgba(168,134,46,.4), 0 2px 6px rgba(10,5,20,.35)}
+          .card.bad{border-color:#c0452f}
+          .crow{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer}
+          .chandle{cursor:grab;color:#b39f77;font-size:13px;letter-spacing:-1px;user-select:none}
+          .cid{font-family:'JetBrains Mono',monospace;font-size:12px;color:#7a5b23;background:#efe2c2;border:1px solid #dcc9a0;border-radius:3px;padding:2px 7px}
+          .cid.err{color:#a32c17;border-color:#c0452f;background:#f3ddd4}
+          .ctitle{flex:1;font-size:14px;color:#4a3a2c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-style:italic}
+          .ccount{font-family:'JetBrains Mono',monospace;font-size:11px;color:#6f5a33;background:#ece0c4;border:1px solid #d8c9a8;border-radius:10px;padding:2px 9px}
+          .updn{display:flex;flex-direction:column;gap:1px}
+          .updn button{border:0;background:transparent;color:#b39f77;font-size:8px;line-height:1;cursor:pointer;padding:1px 4px}
+          .updn button:hover{color:#7a5b23}
+          .cbody{border-top:1px solid #e3d5b4;padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+          .cinp{width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid #d8c9a8;border-radius:3px;background:#fdf8ec;color:#3a2f2a;font-family:Spectral,serif;font-size:13.5px}
+          .cinp:focus{outline:none;border-color:#a8862e}
+          .cinp.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+          .cinp.bad{border-color:#c0452f;background:#fbf1ec}
+          .clabel{font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;color:#9a875f;margin-bottom:4px}
+          .clabel .opt{text-transform:none;letter-spacing:0;color:#b3a077}
+          .cgrid{display:grid;grid-template-columns:1fr 1fr 108px;gap:12px}
+          .metarow{display:grid;grid-template-columns:1fr 1.4fr auto;gap:8px;margin-bottom:6px}
+          .cbtn{padding:5px 10px;border-radius:3px;border:1px solid #c9b384;background:#efe6cd;color:#7a6033;font-size:12px;cursor:pointer;font-family:Spectral,serif}
+          .cbtn:hover{background:#e7dbba}
+          .cbtn.red{color:#a32c17;border-color:#d0a08e}
+          .cbtn.red:hover{background:#f3ddd4}
+          .cxs{width:30px;height:30px;border-radius:3px;border:1px solid #d8c9a8;background:transparent;color:#b3552f;cursor:pointer;font-size:12px}
+          .cxs:hover{background:#f3ddd4}
+          .right{flex:0 0 424px;display:flex;flex-direction:column;background:#2b2138;border-left:1px solid #4a3a5c;min-height:0}
+          .rsec{padding:12px 16px 4px;display:flex;align-items:center;gap:8px}
+          .rsechd{font-family:'Cormorant SC',serif;font-size:13px;letter-spacing:2.5px;color:#a48cc4;flex:1}
+          .rsub{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8d7ba6}
+          .tbtn{padding:4px 9px;border-radius:3px;border:1px solid #6a5588;background:transparent;color:#a48cc4;font-size:11px;cursor:pointer;font-family:'JetBrains Mono',monospace}
+          .tbtn:hover{background:#352a44;color:#c9b8e0}
+          .yamlbox{flex:1.15;min-height:120px;margin:6px 16px 0;background:#171021;border:1px solid #3a2c4e;border-radius:4px;overflow:auto}
+          .yamlbox pre{margin:0;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.62;color:#d6c39a;white-space:pre}
+          .vbox{max-height:26%;overflow-y:auto;margin:6px 16px 0;display:flex;flex-direction:column;gap:5px}
+          .vrow{font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.5;display:flex;gap:7px}
+          .vrow.err{color:#e08a76}
+          .vrow.ok{color:#8fc4b5}
+          .drawbar{display:flex;align-items:center;gap:8px;margin:6px 16px 0}
+          .ninp{width:52px;box-sizing:border-box;padding:6px 6px;border:1px solid #55446b;border-radius:3px;background:#1e1629;color:#e9e0d0;font-family:'JetBrains Mono',monospace;font-size:12.5px;text-align:center}
+          .chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 16px 0}
+          .chip{font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:3px 9px;border-radius:10px;border:1px solid #55446b;color:#b0a1c8}
+          .chip b{color:#e6c86e;font-weight:600}
+          .outbox{flex:1;min-height:90px;margin:8px 16px 14px;background:#221933;border:1px solid #4a3a5c;border-radius:4px;overflow-y:auto;padding:10px 12px}
+          .outph{font-size:12.5px;font-style:italic;color:#8d7ba6}
+          .outcard{margin-bottom:9px}
+          .outhd{display:flex;align-items:baseline;gap:8px}
+          .outtitle{font-family:'Cormorant SC',serif;font-size:15px;color:#e6c86e}
+          .outiid{font-family:'JetBrains Mono',monospace;font-size:10px;color:#8d7ba6}
+          .outpeek{color:#a48cc4;font-style:italic}
+          .outtext{font-size:13px;color:#cfc2ae;line-height:1.5}
+          .hint{font-size:11px;color:#9c8bb0;font-style:italic;margin:4px 16px 0}
+          .rph{margin:14px 16px;font-size:12.5px;font-style:italic;color:#8d7ba6;text-align:center}
+          ::-webkit-scrollbar{width:11px;height:11px}
+          ::-webkit-scrollbar-thumb{background:#4f3f66;border:3px solid transparent;background-clip:content-box;border-radius:8px}
+          ::selection{background:#8a6d1f;color:#fdf6e0}
+        </style>
+      </helmet>
+      <div class="app">
+        <div class="hdr" data-screen-label="Header">
+          <div>
+            <div class="brand1">Deckbox</div>
+            <div class="brand2">DECK FORGE</div>
+          </div>
+          <div class="hdiv"></div>
+          <sc-if value="{{ hasDeck }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div class="hlabel">Deck</div>
+              <div class="hname">{{ deckName }}</div>
+            </div>
+          </sc-if>
+          <div style="flex:1"></div>
+          <sc-if value="{{ hasDeck }}" hint-placeholder-val="{{ true }}">
+            <div class="{{ pillCls }}">
+              <div class="dot"></div>
+              <span>{{ pillText }}</span>
+            </div>
+          </sc-if>
+        </div>
+        <div style="flex:1;display:flex;min-height:0">
+          <div class="rail" data-screen-label="Deck cabinet" onDragOver="{{ dragOverRail }}" onDrop="{{ dropRail }}">
+            <div class="railhd">THE CABINET</div>
+            <sc-if value="{{ impErr }}">
+              <div class="banner banner-err"><span style="flex:1">{{ impErrText }}</span><button class="bx" onClick="{{ dismissImpErr }}">✕</button></div>
+            </sc-if>
+            <sc-if value="{{ impNote }}">
+              <div class="banner banner-note"><span style="flex:1">{{ impNoteText }}</span><button class="bx" onClick="{{ dismissImpNote }}">✕</button></div>
+            </sc-if>
+            <div class="railbody">
+              <sc-for list="{{ deckRows }}" as="d" hint-placeholder-count="3">
+                <div class="{{ d.cls }}" onClick="{{ d.select }}">
+                  <span class="drname">{{ d.name }}</span>
+                  <span class="drcount">{{ d.counts }}</span>
+                  <button class="drx" title="Delete deck" onClick="{{ d.remove }}">✕</button>
+                </div>
+              </sc-for>
+              <button class="railbtn" onClick="{{ addDeck }}">+ new deck</button>
+              <button class="railbtn" onClick="{{ pickImport }}">⤴ import .yaml</button>
+              <input type="file" accept=".yaml,.yml" style="display:none" ref="{{ fileRef }}" onChange="{{ fileChosen }}" />
+            </div>
+          </div>
+          <div class="center" data-screen-label="Deck editor">
+            <sc-if value="{{ showEmpty }}">
+              <div class="empty">
+                <div class="cardback">☾</div>
+                <div class="emptyhd">{{ emptyHd }}</div>
+                <div style="font-size:14px;max-width:340px;line-height:1.5">{{ emptyBody }}</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ showDeck }}" hint-placeholder-val="{{ true }}">
+              <div class="edwrap">
+                <div style="display:flex;gap:14px;align-items:flex-end">
+                  <div style="flex:1">
+                    <div class="flabel">Deck name</div>
+                    <input class="inp big" value="{{ dName }}" onChange="{{ setDName }}" placeholder="Fate Oracle" />
+                  </div>
+                </div>
+                <div style="margin-top:14px">
+                  <div class="flabel">Description <span class="opt">— optional</span></div>
+                  <input class="inp" value="{{ dDesc }}" onChange="{{ setDDesc }}" placeholder="Draw to reveal what fate has in store" />
+                </div>
+                <div class="sect">
+                  <div class="secthd">CONTAINERS</div>
+                  <div class="sectnote">draw_pile is implicit — list extra piles like discard</div>
+                  <div style="flex:1"></div>
+                  <button class="btn" onClick="{{ addContainer }}">+ add</button>
+                </div>
+                <sc-for list="{{ ctRows }}" as="ct" hint-placeholder-count="1">
+                  <div class="ctrow">
+                    <input class="{{ ct.cls }}" value="{{ ct.name }}" onChange="{{ ct.set }}" placeholder="discard" />
+                    <button class="xbtn" onClick="{{ ct.remove }}">✕</button>
+                  </div>
+                </sc-for>
+                <div class="sect">
+                  <div class="secthd">CARDS</div>
+                  <div class="sectnote">{{ cardStats }}</div>
+                  <div style="flex:1"></div>
+                  <input class="inp mono" style="width:150px;padding:5px 8px" value="{{ filter }}" onChange="{{ setFilter }}" placeholder="filter…" />
+                  <button class="btn gold" onClick="{{ addCard }}">+ card</button>
+                </div>
+                <sc-for list="{{ cardRows }}" as="c" hint-placeholder-count="3">
+                  <div class="{{ c.cls }}" draggable="{{ true }}" onDragStart="{{ c.dragStart }}" onDragOver="{{ c.dragOver }}" onDrop="{{ c.drop }}">
+                    <div class="crow" onClick="{{ c.toggle }}">
+                      <span class="chandle" title="Drag to reorder">☰</span>
+                      <div class="updn">
+                        <button title="Move up" onClick="{{ c.up }}">▲</button>
+                        <button title="Move down" onClick="{{ c.down }}">▼</button>
+                      </div>
+                      <span class="{{ c.idCls }}">{{ c.idShow }}</span>
+                      <span class="ctitle">{{ c.titleShow }}</span>
+                      <sc-if value="{{ c.multi }}" hint-placeholder-val="{{ true }}">
+                        <span class="ccount">{{ c.countShow }}</span>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ c.exp }}" hint-placeholder-val="{{ true }}">
+                      <div class="cbody">
+                        <div class="cgrid">
+                          <div>
+                            <div class="clabel">id</div>
+                            <input class="{{ c.idInpCls }}" value="{{ c.id }}" onChange="{{ c.setId }}" placeholder="goblin-ambush" />
+                          </div>
+                          <div>
+                            <div class="clabel">Title <span class="opt">— optional</span></div>
+                            <input class="cinp" value="{{ c.title }}" onChange="{{ c.setTitle }}" placeholder="Goblin Ambush" />
+                          </div>
+                          <div>
+                            <div class="clabel">Copies</div>
+                            <input class="cinp mono" type="number" min="1" step="1" value="{{ c.count }}" onChange="{{ c.setCount }}" />
+                          </div>
+                        </div>
+                        <div>
+                          <div class="clabel">Text</div>
+                          <textarea class="{{ c.textCls }}" rows="2" value="{{ c.text }}" onChange="{{ c.setText }}" placeholder="A band of goblins leaps from the bushes!"></textarea>
+                        </div>
+                        <div>
+                          <div class="clabel">Metadata <span class="opt">— key / value</span></div>
+                          <sc-for list="{{ c.meta }}" as="m" hint-placeholder-count="1">
+                            <div class="metarow">
+                              <input class="{{ m.kCls }}" value="{{ m.k }}" onChange="{{ m.setK }}" placeholder="category" />
+                              <input class="cinp mono" value="{{ m.v }}" onChange="{{ m.setV }}" placeholder="exploration" />
+                              <button class="cxs" onClick="{{ m.remove }}">✕</button>
+                            </div>
+                          </sc-for>
+                          <div style="display:flex;gap:8px;margin-top:4px">
+                            <button class="cbtn" onClick="{{ c.addMeta }}">+ metadata</button>
+                            <div style="flex:1"></div>
+                            <button class="cbtn" onClick="{{ c.dup }}">⧉ duplicate</button>
+                            <button class="cbtn red" onClick="{{ c.remove }}">✕ remove card</button>
+                          </div>
+                        </div>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+          <div class="right" data-screen-label="YAML, validation and test draw">
+            <div class="rsec">
+              <div class="rsechd">{{ yamlTitle }}</div>
+              <sc-if value="{{ hasDeck }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:8px">
+                  <button class="tbtn" onClick="{{ copyYaml }}">{{ copyLabel }}</button>
+                  <button class="tbtn" onClick="{{ downloadYaml }}">⬇ .yaml</button>
+                </div>
+              </sc-if>
+            </div>
+            <div class="yamlbox"><pre>{{ yaml }}</pre></div>
+            <sc-if value="{{ noDeck }}">
+              <div class="rph">— select a deck to validate and test-draw —</div>
+            </sc-if>
+            <sc-if value="{{ hasDeck }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+                <div class="rsec" style="margin-top:8px">
+                  <div class="rsechd">VALIDATION</div>
+                  <div class="rsub">deckbox rules + editor checks</div>
+                </div>
+                <div class="vbox">
+                  <sc-if value="{{ isValid }}" hint-placeholder-val="{{ true }}">
+                    <div class="vrow ok"><span>✓</span><span>Deck is valid.</span></div>
+                  </sc-if>
+                  <sc-for list="{{ probRows }}" as="p" hint-placeholder-count="1">
+                    <div class="vrow err"><span>✕</span><span>{{ p.msg }}</span></div>
+                  </sc-for>
+                </div>
+                <div class="rsec" style="margin-top:8px">
+                  <div class="rsechd">DRAW THE CARDS</div>
+                  <div class="rsub">ephemeral session</div>
+                </div>
+                <div class="drawbar">
+                  <button class="{{ drawCls }}" onClick="{{ doDraw }}">⤴ Draw</button>
+                  <input class="ninp" type="number" min="1" step="1" value="{{ drawN }}" onChange="{{ setDrawN }}" />
+                  <button class="btn" onClick="{{ doPeek }}">◉ Peek</button>
+                  <button class="btn" onClick="{{ doShuffle }}">⇄ Shuffle</button>
+                  <button class="btn" onClick="{{ doReset }}">↺ Reset</button>
+                </div>
+                <sc-if value="{{ pileEmpty }}">
+                  <div class="hint">pile empty — reset to draw again</div>
+                </sc-if>
+                <div class="chips">
+                  <sc-for list="{{ pileChips }}" as="pc" hint-placeholder-count="2">
+                    <span class="chip">{{ pc.name }} <b>{{ pc.n }}</b></span>
+                  </sc-for>
+                </div>
+                <div class="outbox">
+                  <sc-if value="{{ outEmpty }}" hint-placeholder-val="{{ true }}">
+                    <div class="outph">— draw from the pile to reveal cards —</div>
+                  </sc-if>
+                  <sc-for list="{{ outRows }}" as="o">
+                    <div class="outcard">
+                      <div class="outhd">
+                        <span class="{{ o.titleCls }}">{{ o.title }}</span>
+                        <span class="outiid">{{ o.iid }}</span>
+                      </div>
+                      <div class="outtext">{{ o.text }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </div>
+    </x-dc>
+    <script
+      type="text/x-dc"
+      data-dc-script
+      data-props='{}'
+    >
+      class Component extends DCLogic {
+        constructor(props) {
+          super(props);
+          const saved = this.loadWs();
+          this.state = {
+            decks: saved ? saved.decks : [this.seedDeck()],
+            selUid: saved ? saved.selUid : 's1',
+            filter: '', drawN: '1',
+            copyLabel: '⧉ copy',
+            impErrText: null, impNoteText: null,
+            sess: null, outRows: [],
+            dragCid: null
+          };
+          if (this.state.selUid && !this.state.decks.find(d => d.uid === this.state.selUid)) {
+            this.state.selUid = this.state.decks.length ? this.state.decks[0].uid : null;
+          }
+          this._fileRef = React.createRef();
+          this._uidn = 100;
+        }
+
+        /* ---------- workspace persistence (localStorage) ---------- */
+        loadWs() {
+          try {
+            const raw = localStorage.getItem('deck-forge-workspace');
+            if (!raw) return null;
+            const ws = JSON.parse(raw);
+            if (!ws || !Array.isArray(ws.decks)) return null;
+            return ws;
+          } catch (e) { return null; }
+        }
+        saveWs() {
+          try {
+            localStorage.setItem('deck-forge-workspace',
+              JSON.stringify({ decks: this.state.decks, selUid: this.state.selUid }));
+          } catch (e) { /* quota — working state only */ }
+        }
+        uid() { this._uidn += 1; return 'u' + this._uidn + '-' + this.state.decks.length; }
+
+        seedDeck() {
+          return { uid: 's1', name: 'Fate Oracle', desc: 'Draw to reveal what fate has in store',
+            containers: ['discard'],
+            cards: [
+              { cid: 'c1', id: 'goblin-ambush', title: 'Goblin Ambush', text: 'A band of goblins leaps from the bushes!', count: '3', meta: [], exp: false },
+              { cid: 'c2', id: 'dragon-sighting', title: 'Dragon Sighting', text: 'A shadow passes overhead…', count: '1', meta: [], exp: false },
+              { cid: 'c3', id: 'ancient-ruins', title: 'Ancient Ruins', text: 'You stumble upon crumbling stone walls…', count: '1',
+                meta: [{ mid: 'm1', k: 'category', v: 'exploration' }, { mid: 'm2', k: 'image', v: 'ancient-ruins.png' }], exp: true },
+              { cid: 'c4', id: 'sudden-storm', title: 'Sudden Storm', text: 'Rain hammers down; the road turns to mud.', count: '2', meta: [], exp: false }
+            ] };
+        }
+
+        /* mutate helper: apply fn to a draft copy of decks, invalidate session, persist */
+        mut(fn) {
+          const decks = JSON.parse(JSON.stringify(this.state.decks));
+          fn(decks);
+          this.setState({ decks, sess: null, outRows: [] }, () => this.saveWs());
+        }
+        curDeck(decks) {
+          const list = decks || this.state.decks;
+          return list.find(d => d.uid === this.state.selUid) || null;
+        }
+
+        /* ---------- YAML: clean emitter (NOT the engine serializer) ---------- */
+        yv(s) {
+          s = String(s == null ? '' : s);
+          const needs = s === '' || /^\s|\s$/.test(s) ||
+            /^[-?:,\[\]{}#&*!|>'"%@`]/.test(s) || s.indexOf(': ') >= 0 || s.indexOf(' #') >= 0 ||
+            /^(true|false|yes|no|on|off|null|~)$/i.test(s) || /^[+-]?(\d+\.?\d*|\.\d+)$/.test(s);
+          if (!needs) return s;
+          return '"' + s.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+        }
+        emitDeck(d) {
+          const L = [];
+          L.push('name: ' + this.yv(d.name));
+          if (d.desc) L.push('description: ' + this.yv(d.desc));
+          const cts = (d.containers || []).filter(c => c.trim() !== '');
+          if (cts.length) {
+            L.push('containers:');
+            cts.forEach(c => L.push('  - ' + this.yv(c)));
+          }
+          L.push('');
+          L.push('cards:');
+          d.cards.forEach(c => {
+            L.push('  - id: ' + this.yv(c.id));
+            if (c.title) L.push('    title: ' + this.yv(c.title));
+            L.push('    text: ' + this.yv(c.text));
+            const n = parseInt(c.count, 10);
+            if (!isNaN(n) && n !== 1) L.push('    count: ' + n);
+            const meta = (c.meta || []).filter(m => m.k.trim() !== '');
+            if (meta.length) {
+              L.push('    metadata:');
+              meta.forEach(m => L.push('      ' + this.yv(m.k) + ': ' + this.yv(m.v)));
+            }
+          });
+          return L.join('\n') + '\n';
+        }
+
+        /* ---------- YAML: subset parser for import (deck schema only) ---------- */
+        unq(v) {
+          v = v.trim();
+          if (v.length >= 2 && ((v[0] === '"' && v[v.length-1] === '"') || (v[0] === "'" && v[v.length-1] === "'"))) {
+            const inner = v.slice(1, -1);
+            return v[0] === '"' ? inner.replace(/\\"/g, '"').replace(/\\\\/g, '\\') : inner.replace(/''/g, "'");
+          }
+          return v;
+        }
+        parseDeck(textSrc, fileName) {
+          const res = { name: '', desc: '', containers: [], cards: [], sawComments: false, dropped: [] };
+          const rawLines = textSrc.split(/\r?\n/);
+          let sec = null, card = null, inMeta = false;
+          const kv = (s) => {
+            const i = s.indexOf(':');
+            if (i < 0) return null;
+            return [s.slice(0, i).trim(), s.slice(i + 1).trim()];
+          };
+          for (let li = 0; li < rawLines.length; li++) {
+            let line = rawLines[li];
+            if (/^\s*#/.test(line)) { res.sawComments = true; continue; }
+            if (/\s#/.test(line) && !/["'].*#.*["']/.test(line)) {
+              res.sawComments = true;
+              line = line.replace(/\s#.*$/, '');
+            }
+            if (line.trim() === '') continue;
+            const ind = line.match(/^\s*/)[0].length;
+            const t = line.trim();
+            if (ind === 0) {
+              inMeta = false; card = null;
+              const p = kv(t);
+              if (!p) throw new Error('line ' + (li + 1) + ': expected key: value');
+              const key = p[0];
+              if (key === 'name') { res.name = this.unq(p[1]); sec = null; }
+              else if (key === 'description') { res.desc = this.unq(p[1]); sec = null; }
+              else if (key === 'containers') sec = 'containers';
+              else if (key === 'cards') sec = 'cards';
+              else { res.dropped.push(key); sec = 'skip'; }
+              continue;
+            }
+            if (sec === 'containers' && t.startsWith('- ')) { res.containers.push(this.unq(t.slice(2))); continue; }
+            if (sec === 'cards') {
+              if (t.startsWith('- ')) {
+                card = { cid: 'i' + li, id: '', title: '', text: '', count: '1', meta: [], exp: false };
+                res.cards.push(card); inMeta = false;
+                const p = kv(t.slice(2));
+                if (p) this.setCardKey(card, p, li, res);
+                continue;
+              }
+              if (card) {
+                const p = kv(t);
+                if (!p) throw new Error('line ' + (li + 1) + ': expected key: value in card');
+                if (inMeta && ind >= 6) { card.meta.push({ mid: 'm' + li, k: this.unq(p[0]), v: this.unq(p[1]) }); continue; }
+                inMeta = false;
+                if (p[0] === 'metadata' && p[1] === '') { inMeta = true; continue; }
+                this.setCardKey(card, p, li, res);
+                continue;
+              }
+            }
+            if (sec === 'skip') continue;
+            throw new Error('line ' + (li + 1) + ': unexpected content');
+          }
+          if (!res.name) throw new Error('missing required field: name');
+          if (!res.cards.length) throw new Error('missing or empty required field: cards');
+          res.cards.forEach((c, i) => { if (!c.id) throw new Error('card ' + (i + 1) + ' is missing required field: id'); });
+          return res;
+        }
+        setCardKey(card, p, li, res) {
+          if (p[0] === 'id') card.id = this.unq(p[1]);
+          else if (p[0] === 'title') card.title = this.unq(p[1]);
+          else if (p[0] === 'text') card.text = this.unq(p[1]);
+          else if (p[0] === 'count') card.count = String(parseInt(p[1], 10) || 0);
+          else if (p[0] === 'metadata') { /* handled by caller */ }
+          else res.dropped.push('cards[].' + p[0]);
+        }
+
+        /* ---------- validation: engine rules + editor checks ---------- */
+        validate(d) {
+          const probs = [];
+          if (!d.cards.length) probs.push('deck has empty cards list');
+          const seen = {};
+          d.cards.forEach((c, i) => {
+            const label = c.id || ('card #' + (i + 1));
+            if (c.id && seen[c.id]) probs.push('duplicate card ID: ' + c.id);
+            seen[c.id] = true;
+            if (c.id.indexOf(':') >= 0) probs.push("card ID '" + c.id + "' contains a colon, which conflicts with instance ID format");
+            const n = parseInt(c.count, 10);
+            if (n === 0) probs.push("card '" + label + "' has count of 0");
+            if (!c.id.trim()) probs.push('card #' + (i + 1) + ' has an empty id (editor check)');
+            if (!c.text.trim()) probs.push("card '" + label + "' has empty text (editor check)");
+            const mseen = {};
+            (c.meta || []).forEach(m => {
+              if (m.k.trim() && mseen[m.k]) probs.push("card '" + label + "' has duplicate metadata key: " + m.k + ' (editor check)');
+              mseen[m.k] = true;
+            });
+          });
+          (d.containers || []).forEach(ct => {
+            if (ct.trim() === 'draw_pile') probs.push("container name 'draw_pile' is reserved");
+          });
+          return probs;
+        }
+
+        /* ---------- test-draw session (mirrors engine semantics) ---------- */
+        buildSess(d) {
+          const pile = [];
+          d.cards.forEach(c => {
+            const n = Math.max(1, parseInt(c.count, 10) || 1);
+            for (let i = 1; i <= n; i++) pile.push({ iid: c.id + ':' + i, title: c.title || c.id, text: c.text });
+          });
+          const piles = { draw_pile: pile };
+          (d.containers || []).forEach(ct => { if (ct.trim() && ct.trim() !== 'draw_pile') piles[ct.trim()] = []; });
+          return { piles };
+        }
+        ensureSess() {
+          if (this.state.sess) return this.state.sess;
+          const d = this.curDeck();
+          if (!d) return null;
+          const sess = this.buildSess(d);
+          this.setState({ sess });
+          return sess;
+        }
+        drawCards() {
+          const sess = this.ensureSess();
+          if (!sess) return;
+          const pile = sess.piles.draw_pile;
+          if (!pile.length) return;
+          let n = Math.max(1, parseInt(this.state.drawN, 10) || 1);
+          n = Math.min(n, pile.length); /* clamp to remaining */
+          const chunk = pile.splice(pile.length - n, n); /* engine: split_off from END */
+          if (!sess.piles.drawn) sess.piles.drawn = [];
+          sess.piles.drawn = sess.piles.drawn.concat(chunk);
+          const rows = this.state.outRows.slice();
+          for (let i = chunk.length - 1; i >= 0; i--) { /* top of deck first */
+            rows.push({ title: chunk[i].title, iid: chunk[i].iid, text: chunk[i].text, peek: false });
+          }
+          this.setState({ sess, outRows: rows });
+        }
+        peekCards() {
+          const sess = this.ensureSess();
+          if (!sess) return;
+          const pile = sess.piles.draw_pile;
+          if (!pile.length) return;
+          let n = Math.max(1, parseInt(this.state.drawN, 10) || 1);
+          n = Math.min(n, pile.length);
+          const rows = this.state.outRows.slice();
+          for (let i = pile.length - 1; i >= pile.length - n; i--) {
+            rows.push({ title: 'peek — ' + pile[i].title, iid: pile[i].iid, text: pile[i].text, peek: true });
+          }
+          this.setState({ outRows: rows });
+        }
+        shufflePile() {
+          const sess = this.ensureSess();
+          if (!sess) return;
+          const p = sess.piles.draw_pile;
+          for (let i = p.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            const tmp = p[i]; p[i] = p[j]; p[j] = tmp;
+          }
+          this.setState({ sess });
+        }
+        resetSess() { this.setState({ sess: null, outRows: [] }); }
+
+        /* ---------- import / export ---------- */
+        importText(text, fileName) {
+          try {
+            const r = this.parseDeck(text, fileName);
+            const nuid = this.uid();
+            const deck = { uid: nuid, name: r.name, desc: r.desc, containers: r.containers, cards: r.cards };
+            const decks = JSON.parse(JSON.stringify(this.state.decks));
+            decks.push(deck);
+            const notes = [];
+            if (r.sawComments) notes.push('comments in the source file won’t be kept');
+            if (r.dropped.length) notes.push('unrecognized keys dropped: ' + r.dropped.join(', '));
+            this.setState({ decks, selUid: nuid, sess: null, outRows: [], impErrText: null,
+              impNoteText: notes.length ? 'Imported “' + r.name + '” — ' + notes.join('; ') + '.' : null },
+              () => this.saveWs());
+          } catch (e) {
+            this.setState({ impErrText: 'Couldn’t import ' + fileName + ': ' + e.message });
+          }
+        }
+        readFileObj(f) {
+          if (!f) return;
+          const rd = new FileReader();
+          rd.onload = () => this.importText(String(rd.result), f.name);
+          rd.readAsText(f);
+        }
+        download(name, text) {
+          const blob = new Blob([text], { type: 'text/yaml' });
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = name;
+          document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(a.href), 500);
+        }
+        slug(s) { return (s || 'deck').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'deck'; }
+
+        /* ---------- render ---------- */
+        renderVals() {
+          const st = this.state;
+          const d = this.curDeck();
+          const probs = d ? this.validate(d) : [];
+          const yaml = d ? this.emitDeck(d) : '';
+          const sess = st.sess || (d ? this.buildSess(d) : null);
+          const filter = st.filter.trim().toLowerCase();
+
+          const deckRows = st.decks.map(dk => {
+            const total = dk.cards.reduce((a, c) => a + Math.max(1, parseInt(c.count, 10) || 1), 0);
+            return {
+              name: dk.name || 'untitled deck',
+              counts: dk.cards.length + '/' + total,
+              cls: dk.uid === st.selUid ? 'deckrow on' : 'deckrow',
+              select: () => this.setState({ selUid: dk.uid, sess: null, outRows: [] }, () => this.saveWs()),
+              remove: (e) => {
+                e.stopPropagation();
+                if (!confirm('Delete “' + (dk.name || 'untitled deck') + '”? This can’t be undone.')) return;
+                const decks = this.state.decks.filter(x => x.uid !== dk.uid);
+                let sel = this.state.selUid;
+                if (sel === dk.uid) sel = decks.length ? decks[0].uid : null;
+                this.setState({ decks, selUid: sel, sess: null, outRows: [] }, () => this.saveWs());
+              }
+            };
+          });
+
+          const mkCard = (c, idx, arr) => {
+            const idErr = !c.id.trim() || c.id.indexOf(':') >= 0 || arr.filter(x => x.id === c.id).length > 1;
+            const textErr = !c.text.trim();
+            const visible = !filter || (c.id + ' ' + c.title + ' ' + c.text).toLowerCase().indexOf(filter) >= 0;
+            const setF = (field) => (e) => this.mut(dl => { this.curDeck(dl).cards[idx][field] = e.target.value; });
+            const nCopies = Math.max(1, parseInt(c.count, 10) || 1);
+            return {
+              visible,
+              cls: (idErr || textErr) ? 'card bad' : 'card',
+              idCls: idErr ? 'cid err' : 'cid',
+              idInpCls: idErr ? 'cinp mono bad' : 'cinp mono',
+              textCls: textErr ? 'cinp bad' : 'cinp',
+              idShow: c.id.trim() || '(no id)',
+              titleShow: c.title || c.text || '—',
+              multi: nCopies > 1,
+              countShow: nCopies + ' copies',
+              exp: c.exp, id: c.id, title: c.title, text: c.text, count: c.count,
+              toggle: () => this.mut(dl => { const cc = this.curDeck(dl).cards[idx]; cc.exp = !cc.exp; }),
+              setId: setF('id'), setTitle: setF('title'), setText: setF('text'),
+              setCount: (e) => this.mut(dl => { this.curDeck(dl).cards[idx].count = e.target.value.replace(/[^0-9]/g, ''); }),
+              up: (e) => { e.stopPropagation(); if (idx > 0) this.mut(dl => { const cs = this.curDeck(dl).cards; const t = cs[idx-1]; cs[idx-1] = cs[idx]; cs[idx] = t; }); },
+              down: (e) => { e.stopPropagation(); this.mut(dl => { const cs = this.curDeck(dl).cards; if (idx < cs.length-1) { const t = cs[idx+1]; cs[idx+1] = cs[idx]; cs[idx] = t; } }); },
+              dragStart: () => this.setState({ dragCid: c.cid }),
+              dragOver: (e) => e.preventDefault(),
+              drop: (e) => {
+                e.preventDefault();
+                const src = this.state.dragCid;
+                if (!src || src === c.cid) return;
+                this.mut(dl => {
+                  const cs = this.curDeck(dl).cards;
+                  const si = cs.findIndex(x => x.cid === src);
+                  const ti = cs.findIndex(x => x.cid === c.cid);
+                  if (si < 0 || ti < 0) return;
+                  const moved = cs.splice(si, 1)[0];
+                  cs.splice(ti, 0, moved);
+                });
+              },
+              remove: () => {
+                if (!confirm('Remove card “' + (c.id || '(no id)') + '”?')) return;
+                this.mut(dl => { this.curDeck(dl).cards.splice(idx, 1); });
+              },
+              dup: () => this.mut(dl => {
+                const cs = this.curDeck(dl).cards;
+                const copy = JSON.parse(JSON.stringify(cs[idx]));
+                copy.cid = this.uid(); copy.id = copy.id ? copy.id + '-copy' : ''; copy.exp = true;
+                copy.meta.forEach(m => { m.mid = this.uid(); });
+                cs.splice(idx + 1, 0, copy);
+              }),
+              addMeta: () => this.mut(dl => { this.curDeck(dl).cards[idx].meta.push({ mid: this.uid(), k: '', v: '' }); }),
+              meta: (c.meta || []).map((m, mi) => {
+                const dupK = m.k.trim() && (c.meta || []).filter(x => x.k === m.k).length > 1;
+                return {
+                  k: m.k, v: m.v,
+                  kCls: dupK ? 'cinp mono bad' : 'cinp mono',
+                  setK: (e) => this.mut(dl => { this.curDeck(dl).cards[idx].meta[mi].k = e.target.value; }),
+                  setV: (e) => this.mut(dl => { this.curDeck(dl).cards[idx].meta[mi].v = e.target.value; }),
+                  remove: () => this.mut(dl => { this.curDeck(dl).cards[idx].meta.splice(mi, 1); })
+                };
+              })
+            };
+          };
+          const cardRows = d ? d.cards.map((c, i) => mkCard(c, i, d.cards)).filter(c => c.visible) : [];
+
+          const ctRows = d ? d.containers.map((ct, i) => ({
+            name: ct,
+            cls: ct.trim() === 'draw_pile' ? 'inp mono bad' : 'inp mono',
+            set: (e) => this.mut(dl => { this.curDeck(dl).containers[i] = e.target.value; }),
+            remove: () => this.mut(dl => { this.curDeck(dl).containers.splice(i, 1); })
+          })) : [];
+
+          const pileChips = [];
+          if (sess) {
+            const names = Object.keys(sess.piles);
+            names.sort((a, b) => (a === 'draw_pile' ? -1 : b === 'draw_pile' ? 1 : a < b ? -1 : 1));
+            names.forEach(nm => pileChips.push({ name: nm, n: String(sess.piles[nm].length) }));
+          }
+          const total = d ? d.cards.reduce((a, c) => a + Math.max(1, parseInt(c.count, 10) || 1), 0) : 0;
+          const pileEmpty = !!(st.sess && st.sess.piles.draw_pile.length === 0);
+
+          return {
+            hasDeck: !!d,
+            noDeck: !d,
+            deckName: d ? (d.name || 'untitled deck') : '',
+            pillCls: probs.length ? 'pill pill-bad' : 'pill pill-ok',
+            pillText: probs.length ? probs.length + ' problem' + (probs.length > 1 ? 's' : '') : 'Deck is valid',
+            deckRows,
+            addDeck: () => {
+              const nuid = this.uid();
+              const decks = JSON.parse(JSON.stringify(this.state.decks));
+              decks.push({ uid: nuid, name: 'New Deck', desc: '', containers: [], cards: [{ cid: this.uid(), id: '', title: '', text: '', count: '1', meta: [], exp: true }] });
+              this.setState({ decks, selUid: nuid, sess: null, outRows: [] }, () => this.saveWs());
+            },
+            pickImport: () => { if (this._fileRef.current) this._fileRef.current.click(); },
+            fileRef: this._fileRef,
+            fileChosen: (e) => { this.readFileObj(e.target.files[0]); e.target.value = ''; },
+            dragOverRail: (e) => e.preventDefault(),
+            dropRail: (e) => { e.preventDefault(); if (e.dataTransfer.files && e.dataTransfer.files.length) this.readFileObj(e.dataTransfer.files[0]); },
+            impErr: !!st.impErrText, impErrText: st.impErrText || '',
+            impNote: !!st.impNoteText, impNoteText: st.impNoteText || '',
+            dismissImpErr: () => this.setState({ impErrText: null }),
+            dismissImpNote: () => this.setState({ impNoteText: null }),
+            showEmpty: !d, showDeck: !!d,
+            emptyHd: st.decks.length ? 'Nothing selected' : 'The cabinet is empty',
+            emptyBody: st.decks.length ? 'Choose a deck from the cabinet to edit it.' : 'Create a new deck or import an existing .yaml definition to begin.',
+            dName: d ? d.name : '', dDesc: d ? d.desc : '',
+            setDName: (e) => this.mut(dl => { this.curDeck(dl).name = e.target.value; }),
+            setDDesc: (e) => this.mut(dl => { this.curDeck(dl).desc = e.target.value; }),
+            addContainer: () => this.mut(dl => { this.curDeck(dl).containers.push(''); }),
+            ctRows,
+            cardStats: d ? (d.cards.length + ' unique · ' + total + ' total instances') : '',
+            filter: st.filter,
+            setFilter: (e) => this.setState({ filter: e.target.value }),
+            addCard: () => this.mut(dl => { this.curDeck(dl).cards.push({ cid: this.uid(), id: '', title: '', text: '', count: '1', meta: [], exp: true }); }),
+            cardRows,
+            yamlTitle: d ? (this.slug(d.name) + '.yaml').toUpperCase() : 'YAML',
+            yaml: yaml || '# no deck selected',
+            copyLabel: st.copyLabel,
+            copyYaml: () => {
+              if (!yaml) return;
+              navigator.clipboard.writeText(yaml);
+              this.setState({ copyLabel: '✓ copied' });
+              setTimeout(() => this.setState({ copyLabel: '⧉ copy' }), 1400);
+            },
+            downloadYaml: () => { if (d) this.download(this.slug(d.name) + '.yaml', yaml); },
+            isValid: !!d && probs.length === 0,
+            probRows: probs.map(m => ({ msg: m })),
+            drawCls: (!d || pileEmpty) ? 'btn gold dis' : 'btn gold',
+            doDraw: () => this.drawCards(),
+            doPeek: () => this.peekCards(),
+            doShuffle: () => this.shufflePile(),
+            doReset: () => this.resetSess(),
+            drawN: st.drawN,
+            setDrawN: (e) => this.setState({ drawN: e.target.value.replace(/[^0-9]/g, '') }),
+            pileEmpty,
+            pileChips,
+            outEmpty: st.outRows.length === 0,
+            outRows: st.outRows.map(o => ({ title: o.title, iid: o.iid, text: o.text, titleCls: o.peek ? 'outtitle outpeek' : 'outtitle' }))
+          };
+        }
+      }
+    </script>
+  </body>
+</html>
