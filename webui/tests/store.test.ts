@@ -382,4 +382,66 @@ describe('persistence', () => {
     expect(state.decks).toHaveLength(1);
     expect(state.decks[0].name).toBe('Fate Oracle');
   });
+
+  it('falls back to the seed deck when a card is missing its string fields', async () => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        state: {
+          decks: [{ uid: 'x', name: 'D', containers: [], cards: [{ meta: [] }] }],
+          selUid: 'x',
+        },
+        version: 0,
+      }),
+    );
+
+    await useWorkspace.persist.rehydrate();
+
+    const state = useWorkspace.getState();
+    expect(state.decks).toHaveLength(1);
+    expect(state.decks[0].name).toBe('Fate Oracle');
+  });
+
+  it('drops a deck whose card has a non-string field but keeps a valid sibling', async () => {
+    const good: Deck = { ...seedDeck(), uid: 'good', name: 'Good Deck' };
+    const corrupt = {
+      uid: 'corrupt',
+      name: 'Corrupt Deck',
+      description: '',
+      containers: [],
+      // count is a number here, not the string the Card type requires.
+      cards: [{ cid: 'c1', id: 'ghost', title: '', text: 'Boo', count: 1, meta: [], expanded: false }],
+    };
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ state: { decks: [good, corrupt], selUid: 'good' }, version: 0 }),
+    );
+
+    await useWorkspace.persist.rehydrate();
+
+    const state = useWorkspace.getState();
+    expect(state.decks).toHaveLength(1);
+    expect(state.decks[0].uid).toBe('good');
+  });
+
+  it('drops a deck with a non-string name but keeps a valid sibling', async () => {
+    const good: Deck = { ...seedDeck(), uid: 'good', name: 'Good Deck' };
+    const corrupt = {
+      uid: 'corrupt',
+      name: 123,
+      description: '',
+      containers: [],
+      cards: [{ cid: 'c1', id: 'ghost', title: '', text: 'Boo', count: '1', meta: [], expanded: false }],
+    };
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ state: { decks: [good, corrupt], selUid: 'good' }, version: 0 }),
+    );
+
+    await useWorkspace.persist.rehydrate();
+
+    const state = useWorkspace.getState();
+    expect(state.decks).toHaveLength(1);
+    expect(state.decks[0].uid).toBe('good');
+  });
 });
