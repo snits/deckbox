@@ -1,0 +1,5 @@
+name: "Bad Deck"
+cards:
+  - id: ghost
+    text: "Gone"
+    count: 0

@@ -1,0 +1,6 @@
+name: "Bad Deck"
+cards:
+  - id: dupe
+    text: "First"
+  - id: dupe
+    text: "Second"

@@ -1,0 +1,6 @@
+name: "Bad Deck"
+containers:
+  - draw_pile
+cards:
+  - id: card
+    text: "A card"

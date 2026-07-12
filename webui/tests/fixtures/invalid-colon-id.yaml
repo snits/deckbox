@@ -1,0 +1,4 @@
+name: "Bad Deck"
+cards:
+  - id: "bad:id"
+    text: "Colon"
