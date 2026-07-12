@@ -29,7 +29,7 @@ function initialState(): WorkspaceData {
   return { decks: [seed], selUid: seed.uid, editRevision: 0 };
 }
 
-function blankCard(): Card {
+export function blankCard(): Card {
   return { cid: newUid(), id: '', title: '', text: '', count: '1', meta: [], expanded: true };
 }
 
