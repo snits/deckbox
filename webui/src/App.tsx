@@ -2,6 +2,7 @@ import { Cabinet } from './components/Cabinet'
 import { DeckEditor } from './components/DeckEditor'
 import { EmptyState } from './components/EmptyState'
 import { Header } from './components/Header'
+import { RightPane } from './components/RightPane'
 import { EngineProvider } from './engine/useEngine'
 import { useWorkspace } from './model/store'
 
@@ -20,7 +21,9 @@ export function AppContent() {
             {hasSelection ? <DeckEditor /> : <EmptyState hasDecks={decks.length > 0} />}
           </div>
         </div>
-        <div className="pane-right" data-testid="right-pane-slot" />
+        <div className="pane-right" data-testid="right-pane-slot">
+          <RightPane />
+        </div>
       </div>
     </div>
   )
