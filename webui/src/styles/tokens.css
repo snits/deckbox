@@ -1,0 +1,73 @@
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+input, textarea, button, select { font-family: inherit; }
+
+:root {
+  --font-display: 'Cormorant SC', serif;
+  --font-body: 'Spectral', Georgia, serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --bg-page: #241a2f;
+  --bg-panel: #2b2138;
+  --bg-header: #1c1426;
+  --bg-yaml: #171021;
+  --border-yaml: #3a2c4e;
+  --border-panel: #4a3a5c;
+
+  --text: #e9e0d0;
+  --text-muted: #8d7ba6;
+  --text-muted-2: #a48cc4;
+  --text-faint: #6f5f88;
+
+  --bg-input: #1e1629;
+  --border-input: #55446b;
+
+  --gold-brand: #e6c86e;
+  --gold-accent: #c9a227;
+  --gold-btn: #8a6d1f;
+  --gold-btn-hover: #a3821f;
+  --gold-btn-border: #a8862e;
+  --gold-btn-text: #f7ecc8;
+  --yaml-text: #d6c39a;
+
+  --card-bg: #f5eddc;
+  --card-border: #c9b384;
+  --card-input-bg: #fdf8ec;
+  --card-input-border: #d8c9a8;
+  --card-ink: #3a2f2a;
+  --card-ink-2: #4a3a2c;
+  --card-muted: #9a875f;
+  --card-id-chip-bg: #efe2c2;
+  --card-id-chip-text: #7a5b23;
+
+  --teal-border: #3f7d74;
+  --teal-dot: #5fb3a1;
+  --teal-text: #8fc4b5;
+  --teal-bg: rgba(63, 125, 116, 0.16);
+
+  --err: #c0452f;
+  --err-on-dark: #e08a76;
+  --err-chip-bg: #f3ddd4;
+  --err-chip-text: #a32c17;
+
+  /* Header status pill (invalid): dot/border final per README Header
+     section; bg/text not specified there, taken from the design prototype. */
+  --pill-bad-dot: #d97a58;
+  --pill-bad-border: #8f3a28;
+  --pill-bad-bg: rgba(170, 60, 40, 0.2);
+  --pill-bad-text: #f0b5a4;
+
+  --radius-control: 3px;
+  --radius-panel: 4px;
+  --radius-pill: 11px;
+}
+
+::selection { background: var(--gold-btn); color: #fdf6e0; }
+* { scrollbar-width: thin; scrollbar-color: #4f3f66 transparent; }
+*::-webkit-scrollbar { width: 11px; height: 11px; }
+*::-webkit-scrollbar-thumb {
+  background: #4f3f66;
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 8px;
+}
