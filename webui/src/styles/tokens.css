@@ -57,6 +57,12 @@ input, textarea, button, select { font-family: inherit; }
   --pill-bad-bg: rgba(170, 60, 40, 0.2);
   --pill-bad-text: #f0b5a4;
 
+  /* Editor section headings ("CONTAINERS"/"CARDS") and their italic notes:
+     not in the README's Design tokens table, taken from the prototype's
+     literal CSS (.secthd / .sectnote). */
+  --section-heading: #c9b16a;
+  --section-note: #9c8bb0;
+
   --radius-control: 3px;
   --radius-panel: 4px;
   --radius-pill: 11px;
