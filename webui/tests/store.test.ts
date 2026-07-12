@@ -369,6 +369,23 @@ describe('persistence', () => {
     expect(state.decks[0].uid).toBe('good');
   });
 
+  it('nulls selUid when it references a deck dropped by validation, even if another deck survives', async () => {
+    const good: Deck = { ...seedDeck(), uid: 'good', name: 'Good Deck' };
+    const { cards: _cards, ...badWithoutCards } = seedDeck();
+    const bad = { ...badWithoutCards, uid: 'bad', name: 'Bad Deck' };
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ state: { decks: [good, bad], selUid: 'bad' }, version: 0 }),
+    );
+
+    await useWorkspace.persist.rehydrate();
+
+    const state = useWorkspace.getState();
+    expect(state.decks).toHaveLength(1);
+    expect(state.decks[0].uid).toBe('good');
+    expect(state.selUid).toBeNull();
+  });
+
   it('falls back to the seed deck when every persisted deck is malformed', async () => {
     const bad = { uid: 'bad', name: 'Bad Deck' };
     localStorage.setItem(

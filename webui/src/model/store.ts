@@ -81,7 +81,8 @@ function coerceDocument(persisted: unknown): PersistedDoc | null {
   if (!Array.isArray(persisted.decks)) return null;
   const decks = persisted.decks.filter(isValidDeck);
   if (!decks.length) return null;
-  const selUid = typeof persisted.selUid === 'string' ? persisted.selUid : null;
+  const rawSelUid = typeof persisted.selUid === 'string' ? persisted.selUid : null;
+  const selUid = rawSelUid && decks.some((d) => d.uid === rawSelUid) ? rawSelUid : null;
   return { decks, selUid };
 }
 
