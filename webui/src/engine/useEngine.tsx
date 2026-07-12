@@ -13,6 +13,14 @@ export function useEngine(): Engine {
   return ctx;
 }
 
+/** Like `useEngine`, but returns null instead of throwing when there's no
+ * `EngineProvider` ancestor — for components that are mounted unconditionally
+ * (so can't gate the hook call on a deck being selected, the way `TestDraw`
+ * does) but only need the engine for an occasional user action. */
+export function useOptionalEngine(): Engine | null {
+  return useContext(EngineContext);
+}
+
 type LoadState =
   | { status: 'ready'; engine: Engine }
   | { status: 'loading' }
