@@ -49,15 +49,25 @@ function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 function isValidCard(value: unknown): value is Card {
-  return isObject(value) && Array.isArray(value.meta);
+  return (
+    isObject(value) &&
+    typeof value.id === 'string' &&
+    typeof value.title === 'string' &&
+    typeof value.text === 'string' &&
+    typeof value.count === 'string' &&
+    Array.isArray(value.meta)
+  );
 }
 
 function isValidDeck(value: unknown): value is Deck {
   return (
     isObject(value) &&
+    typeof value.uid === 'string' &&
+    typeof value.name === 'string' &&
+    typeof value.description === 'string' &&
+    Array.isArray(value.containers) &&
     Array.isArray(value.cards) &&
-    value.cards.every(isValidCard) &&
-    Array.isArray(value.containers)
+    value.cards.every(isValidCard)
   );
 }
 
