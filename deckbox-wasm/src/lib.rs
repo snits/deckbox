@@ -5,6 +5,9 @@ use deckbox_core::DeckDefinition;
 use serde_json::json;
 use wasm_bindgen::prelude::wasm_bindgen;
 
+mod session;
+pub use session::{draw, new_session, peek, shuffle};
+
 const DECK_FIELDS: &[&str] = &["name", "description", "containers", "cards"];
 const CARD_FIELDS: &[&str] = &["id", "title", "text", "count", "metadata"];
 
