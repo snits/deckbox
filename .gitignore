@@ -1,6 +1,11 @@
 # Rust build artifacts
 /target/
 
+# webui build artifacts
+webui/node_modules
+webui/dist
+webui/src/wasm/pkg
+
 # Dolt database files (added by bd init)
 .dolt/
 *.db
