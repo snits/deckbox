@@ -21,7 +21,7 @@ Authoring + **ephemeral** test-draw only. No persistent sessions, no card-moving
   - Left rail (THE CABINET) — `flex: 0 0 252px`
   - Center (deck editor) — `flex: 1`, scrollable, content `max-width: 700px` centered
   - Right pane — `flex: 0 0 424px`
-- Page bg `#241a2f` with two radial glows: warm candle `rgba(255,190,120,.09)` top-left, violet `rgba(110,70,150,.16)` bottom-right.
+- Page bg `#241a2f` with two radial glows: warm candle `rgba(255,190,120,.09)` top-left, violet `rgba(110,70,150,.16)` bottom-right — plus a subtle felt grain (`radial-gradient(rgba(255,245,225,.02) 1px, transparent 1.4px)`, 4px tile).
 - Base text `#e9e0d0`, `Spectral, Georgia, serif`, 15px.
 
 ## Header
@@ -33,12 +33,12 @@ Bg `#2b2138`, right border `#4a3a5c`. Header label `Cormorant SC` 13px ls 2.5px 
 **Deck deletion:** confirm dialog ("Delete “<name>”? This can't be undone."), then select next remaining deck or empty state.
 
 ## Center — states
-- **Empty:** centered ✿ glyph + `Cormorant SC` heading. Two variants: "Nothing selected" (decks exist) / "The cabinet is empty" + create-or-import helper (zero decks, first-run).
+- **Empty:** centered **gilt card-back motif** — 76×108px rounded card, gold border with inner gilt ring (`box-shadow: inset 0 0 0 3px #2b2138, inset 0 0 0 4px rgba(201,162,39,.55)`), diagonal gold hatching (`repeating-linear-gradient(45deg, rgba(201,162,39,.13) 0 6px, transparent 6px 12px)` on `#3d2f4e`), centered `☾` crescent 30px `#c9a227` — above a `Cormorant SC` heading. Two variants: "Nothing selected" (decks exist) / "The cabinet is empty" + create-or-import helper (zero decks, first-run).
 - **Deck editor:** Deck name (large `Cormorant SC` 20px input), Description (optional). **CONTAINERS** section (note: "draw_pile is implicit"; rows = mono input + ✕; a row named `draw_pile` gets a red border AND a validation error). **CARDS** section: header shows `N unique · M total instances`, a filter input (matches id/title/text), and gold "+ card".
 
 ### Card rows (the signature element)
-Each card is an **ivory card face** on the velvet table: bg `#f5eddc`, border `1px solid #c9b384`, radius 4px, shadow `0 2px 6px rgba(10,5,20,.35)`. Erroneous card → border `#c0452f`.
-- **Collapsed row** (click toggles): drag handle ☰ (grab cursor; HTML5 drag reorder onto sibling rows) + ▲/▼ keyboard-accessible reorder buttons + mono **id chip** (`#efe2c2` bg; error state red) + italic title/text preview (ellipsized) + `× N` count pill.
+Each card is an **ivory card face** on the velvet table: bg `#f5eddc`, border `1px solid #c9b384`, inner gilt hairline (`box-shadow: inset 0 0 0 2px #f5eddc, inset 0 0 0 3px rgba(168,134,46,.4)`), radius 4px, shadow `0 2px 6px rgba(10,5,20,.35)`. Erroneous card → border `#c0452f`.
+- **Collapsed row** (click toggles): drag handle ☰ (grab cursor; HTML5 drag reorder onto sibling rows) + ▲/▼ keyboard-accessible reorder buttons + mono **id chip** (`#efe2c2` bg; error state red) + italic title/text preview (ellipsized) + `N copies` pill — **shown only when count > 1** (✕ is reserved for destructive actions).
 - **Expanded body:** grid `1fr 1fr 108px` of id (mono) / Title (optional) / Copies (positive-integer number input); Text textarea; **Metadata** key/value mono rows (+ add, ✕ remove; duplicate key → red key input + validation entry; empty-key rows dropped on emit); footer: "+ metadata", spacer, "⧉ duplicate" (copies card, id gets `-copy` suffix), "✕ remove card" (confirm).
 
 **Card order matters:** it is preserved in YAML and defines unshuffled draw order (see draw semantics).
@@ -46,6 +46,7 @@ Each card is an **ivory card face** on the velvet table: bg `#f5eddc`, border `1
 ## Right pane
 Bg `#2b2138`, left border `#4a3a5c`.
 - **YAML:** section title = `<slug>.YAML`; ⧉ copy (label → "✓ copied" for 1.4s) and ⬇ .yaml (downloads `<slug>.yaml`; slug = name lowercased, non-alphanumerics → `-`). Dark viewer `#171021`, `JetBrains Mono` 12px `#d6c39a`, live re-emitted on every edit.
+- **No-deck state:** YAML box shows `# no deck selected`; copy/⬇ buttons are hidden; VALIDATION and DRAW THE CARDS are replaced by a single italic placeholder "— select a deck to validate and test-draw —".
 - **VALIDATION:** subtitle "deckbox rules + editor checks". Valid → teal `✓ Deck is valid.` Else red mono `✕` rows, one per problem. Inline field borders stay in sync with this list.
 - **DRAW THE CARDS** (subtitle "ephemeral session"): gold **⤴ Draw** + N stepper + **◉ Peek** + **⇄ Shuffle** + **↺ Reset**; pile chips (`draw_pile` first, then alphabetical — `drawn` appears after first draw; user containers stay 0); output panel where drawn cards **accumulate** (gold `Cormorant SC` title + mono instance id + text; peek rows show an italic violet "peek —" title and move nothing). Empty-pile: Draw disables + hint "pile empty — reset to draw again".
 
@@ -89,7 +90,7 @@ Engine (mirror `deckbox-core` `Definition::validate()`): empty cards list · dup
 **Fonts** (Google Fonts): `Cormorant SC` (display, 400/600/700) · `Spectral` (body serif) · `JetBrains Mono` (ids, YAML, counts).
 
 **Colors**
-- Velvet bg `#241a2f` (+ radial glows above); panel `#2b2138`; header `#1c1426`; YAML `#171021` border `#3a2c4e`.
+- Velvet bg `#241a2f` (+ radial glows and felt grain above); panel `#2b2138`; header `#1c1426`; YAML `#171021` border `#3a2c4e`.
 - On-dark text: primary `#e9e0d0`, muted lavender `#8d7ba6` / `#a48cc4`, faint `#6f5f88`; dark inputs bg `#1e1629` border `#55446b`, focus border gold.
 - Gold: brand `#e6c86e`; accent/selection `#c9a227`; button `#8a6d1f` (hover `#a3821f`) border `#a8862e` text `#f7ecc8`; YAML text `#d6c39a`.
 - Card faces: bg `#f5eddc`, border `#c9b384`, inner inputs `#fdf8ec` border `#d8c9a8`, ink `#3a2f2a` / `#4a3a2c`, muted `#9a875f`, id chip bg `#efe2c2` text `#7a5b23`.
@@ -100,7 +101,7 @@ Engine (mirror `deckbox-core` `Definition::validate()`): empty cards list · dup
 **Radii:** 3px controls, 4px cards/panels, 10-11px pills/chips. **Borders of note:** header `3px double #a8862e`; selected deck row left `3px solid #c9a227`. **Scrollbars:** 11px, thumb `#4f3f66` inset-pill.
 
 ## Assets
-No images. Unicode glyphs only: ✿ ☰ ▲ ▼ ✕ ⧉ ⬇ ✓ ⤴ ◉ ⇄ ↺ ×.
+No images. Unicode glyphs only: ☾ ☰ ▲ ▼ ✕ ⧉ ⬇ ✓ ⤴ ◉ ⇄ ↺.
 
 ## Files
 - `Deck Forge.dc.html` — complete design + portable logic (template in `<x-dc>`; state, emitter, parser, validation, draw sim in `class Component`).
