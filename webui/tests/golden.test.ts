@@ -8,7 +8,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import initWasm, * as rawWasm from '../src/wasm/pkg/deckbox_wasm.js';
-import { wrapEngine, type Engine, type ParsedDeck, type RawEngine } from '../src/engine/engine';
+import { wrapEngine } from '../src/engine/engine';
+import type { Engine, ParsedDeck, RawEngine } from '../src/engine/engine';
 import { parsedToDeck } from '../src/model/store';
 import { emitDeck } from '../src/logic/emit';
 import { validateDeckModel } from '../src/logic/validate';
@@ -98,11 +99,22 @@ describe('golden round-trip (real wasm)', () => {
 });
 
 describe('validity parity between TS and engine (real wasm)', () => {
-  for (const fixture of [...VALID_FIXTURES, ...INVALID_FIXTURES]) {
-    it(`${fixture}: validateDeckModel and engine.validateDeck agree`, () => {
+  for (const fixture of VALID_FIXTURES) {
+    it(`${fixture}: engine accepts it, and validateDeckModel agrees`, () => {
       const src = readFixture(fixture);
-      const tsValid = validateDeckModel(parsedToDeck(parseOrThrow(src))).length === 0;
       const engineValid = engine.validateDeck(src).valid;
+      expect(engineValid).toBe(true);
+      const tsValid = validateDeckModel(parsedToDeck(parseOrThrow(src))).length === 0;
+      expect(tsValid).toBe(engineValid);
+    });
+  }
+
+  for (const fixture of INVALID_FIXTURES) {
+    it(`${fixture}: engine rejects it, and validateDeckModel agrees`, () => {
+      const src = readFixture(fixture);
+      const engineValid = engine.validateDeck(src).valid;
+      expect(engineValid).toBe(false);
+      const tsValid = validateDeckModel(parsedToDeck(parseOrThrow(src))).length === 0;
       expect(tsValid).toBe(engineValid);
     });
   }
