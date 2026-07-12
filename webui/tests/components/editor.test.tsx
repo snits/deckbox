@@ -317,6 +317,65 @@ describe('reordering', () => {
   });
 });
 
+// Pins each deriveCardIssues branch individually (empty id, colon id, empty
+// text, count of 0) so a validate.ts wording change that silently breaks the
+// string-matching in deriveCardIssues fails loudly here, not just in the
+// combined duplicate-id scenario below.
+describe('inline error states derived from validateDeckModel', () => {
+  it('flags the id chip and id field when the id is emptied', () => {
+    render(<DeckEditor />);
+    const row = screen.getByTestId('card-row-c4'); // sudden-storm, collapsed
+
+    fireEvent.click(within(row).getByTestId('card-id-chip')); // expand
+    const idInput = within(row).getByPlaceholderText('goblin-ambush') as HTMLInputElement;
+    fireEvent.change(idInput, { target: { value: '' } });
+
+    expect(within(row).getByTestId('card-id-chip').className).toContain('card-row-id--error');
+    expect(idInput.className).toContain('field-input--bad');
+    expect(row.className).toContain('card-row--bad');
+  });
+
+  it('flags the id chip and id field when the id contains a colon', () => {
+    render(<DeckEditor />);
+    const row = screen.getByTestId('card-row-c2'); // dragon-sighting, collapsed
+
+    fireEvent.click(within(row).getByTestId('card-id-chip'));
+    const idInput = within(row).getByPlaceholderText('goblin-ambush') as HTMLInputElement;
+    fireEvent.change(idInput, { target: { value: 'dragon:sighting' } });
+
+    expect(within(row).getByTestId('card-id-chip').className).toContain('card-row-id--error');
+    expect(idInput.className).toContain('field-input--bad');
+    expect(row.className).toContain('card-row--bad');
+  });
+
+  it('flags the text field when text is emptied', () => {
+    render(<DeckEditor />);
+    const row = screen.getByTestId('card-row-c1'); // goblin-ambush, collapsed
+
+    fireEvent.click(within(row).getByTestId('card-id-chip'));
+    const textArea = within(row).getByPlaceholderText(
+      'A band of goblins leaps from the bushes!',
+    ) as HTMLTextAreaElement;
+    fireEvent.change(textArea, { target: { value: '' } });
+
+    expect(textArea.className).toContain('field-input--bad');
+    expect(row.className).toContain('card-row--bad');
+  });
+
+  it('flags the copies field when count is 0, without red-bordering the whole card', () => {
+    render(<DeckEditor />);
+    const row = screen.getByTestId('card-row-c3'); // ancient-ruins, pre-expanded
+
+    const copiesInput = within(row).getByDisplayValue('1') as HTMLInputElement;
+    fireEvent.change(copiesInput, { target: { value: '0' } });
+
+    expect(currentDeck().cards[2].count).toBe('0');
+    expect(copiesInput.className).toContain('field-input--bad');
+    // Matches the prototype: only id/text errors border the whole card face.
+    expect(row.className).not.toContain('card-row--bad');
+  });
+});
+
 describe('duplicate card id validation', () => {
   it('shows the error state on both offending id chips, and the header pill reads 1 problem', () => {
     render(

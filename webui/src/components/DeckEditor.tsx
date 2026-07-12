@@ -13,6 +13,7 @@ import type { Card, Deck, Problem } from '../model/types';
 interface CardIssues {
   idError: boolean;
   textError: boolean;
+  copiesError: boolean;
   metaKeyErrors: Set<string>;
 }
 
@@ -30,6 +31,7 @@ function deriveCardIssues(deck: Deck, problems: Problem[]): CardIssues[] {
       messages.has(`duplicate card ID: ${card.id}`) ||
       messages.has(`card ID '${card.id}' contains a colon, which conflicts with instance ID format`);
     const textError = messages.has(`card '${label}' has empty text (editor check)`);
+    const copiesError = messages.has(`card '${label}' has count of 0`);
     const metaKeyErrors = new Set(
       card.meta
         .filter((row) =>
@@ -37,7 +39,7 @@ function deriveCardIssues(deck: Deck, problems: Problem[]): CardIssues[] {
         )
         .map((row) => row.rid),
     );
-    return { idError, textError, metaKeyErrors };
+    return { idError, textError, copiesError, metaKeyErrors };
   });
 }
 
@@ -145,6 +147,7 @@ export function DeckEditor() {
             card={card}
             idError={issues[i].idError}
             textError={issues[i].textError}
+            copiesError={issues[i].copiesError}
             metaKeyErrors={issues[i].metaKeyErrors}
             canMoveUp={i > 0}
             canMoveDown={i < deck.cards.length - 1}

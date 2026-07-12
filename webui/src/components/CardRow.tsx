@@ -9,6 +9,7 @@ export interface CardRowProps {
   card: Card;
   idError: boolean;
   textError: boolean;
+  copiesError: boolean;
   metaKeyErrors: Set<string>;
   canMoveUp: boolean;
   canMoveDown: boolean;
@@ -29,6 +30,7 @@ export function CardRow({
   card,
   idError,
   textError,
+  copiesError,
   metaKeyErrors,
   canMoveUp,
   canMoveDown,
@@ -148,7 +150,7 @@ export function CardRow({
             <div>
               <div className="card-field-label">Copies</div>
               <input
-                className="card-field-input card-field-input--mono"
+                className={fieldInputClass('card-field-input card-field-input--mono', copiesError)}
                 type="number"
                 min={1}
                 step={1}
