@@ -148,6 +148,7 @@ name = "deckbox-wasm"
 version = "0.1.0"
 dependencies = [
  "deckbox-core",
+ "rand",
  "serde",
  "serde_json",
  "serde_yaml_ng",
