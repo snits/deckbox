@@ -15,7 +15,7 @@ export function EmptyState({ hasDecks }: EmptyStateProps) {
   return (
     <div className="empty-state">
       <div className="empty-state-cardback" aria-hidden="true">
-        ✿
+        ☾
       </div>
       <div className="empty-state-title">{title}</div>
       <div className="empty-state-body">{body}</div>
