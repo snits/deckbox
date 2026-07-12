@@ -1,0 +1,8 @@
+name: "Multiline Deck"
+cards:
+  - id: multi-line-card
+    text: |
+      Line one.
+      Line two.
+
+      Line four, after a blank line.
