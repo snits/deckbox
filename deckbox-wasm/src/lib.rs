@@ -31,6 +31,12 @@ pub fn parse_deck(yaml: &str) -> String {
 
 /// True if any line has a `#` comment: a full-line comment, or a `#`
 /// preceded by a space outside single/double-quoted scalars.
+///
+/// This is a per-line text scan, not a YAML parser: an apostrophe in an
+/// *unquoted* scalar (`text: it's fine # note`) is read as opening a
+/// single-quoted span, so a trailing comment after it can be missed. Real
+/// decks quote scalars containing apostrophes, so this doesn't come up in
+/// practice, but it's a known gap in the heuristic.
 fn saw_comments(yaml: &str) -> bool {
     yaml.lines().any(line_has_comment)
 }
@@ -146,6 +152,19 @@ name: "No Comments Here"
 cards:
   - id: card-one
     text: "Roll a d6 and add 1 #trivia: not a comment"
+"#;
+        let out: serde_json::Value = serde_json::from_str(&parse_deck(yaml)).unwrap();
+        assert_eq!(out["ok"].as_bool(), Some(true));
+        assert_eq!(out["saw_comments"].as_bool(), Some(false));
+    }
+
+    #[test]
+    fn parse_deck_quoted_hash_in_single_quoted_scalar_is_not_a_comment() {
+        let yaml = r#"
+name: "No Comments Here"
+cards:
+  - id: card-one
+    text: 'Roll a d6 and add 1 #trivia: not a comment'
 "#;
         let out: serde_json::Value = serde_json::from_str(&parse_deck(yaml)).unwrap();
         assert_eq!(out["ok"].as_bool(), Some(true));
