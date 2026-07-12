@@ -202,4 +202,42 @@ describe('Cabinet import wiring', () => {
 
     await waitFor(() => expect(useWorkspace.getState().decks).toHaveLength(2));
   });
+
+  it('shows the failure banner when the file cannot be read, and leaves the workspace unchanged', async () => {
+    const parseDeck = vi.fn(() => OK_DECK);
+    renderCabinet(fakeEngine(parseDeck));
+    const before = useWorkspace.getState();
+    vi.spyOn(FileReader.prototype, 'readAsText').mockImplementation(function (this: FileReader) {
+      Object.defineProperty(this, 'error', {
+        value: new DOMException('permission denied'),
+        configurable: true,
+      });
+      this.onerror?.(new ProgressEvent('error') as unknown as ProgressEvent<FileReader>);
+    });
+
+    chooseFile(new File(['x'], 'unreadable.yaml'));
+
+    await waitFor(() => expect(screen.getByTestId('import-error-banner')).toBeTruthy());
+    expect(screen.getByTestId('import-error-banner').textContent).toContain(
+      'Couldn’t import unreadable.yaml: permission denied',
+    );
+    expect(parseDeck).not.toHaveBeenCalled();
+    expect(useWorkspace.getState().decks).toEqual(before.decks);
+    expect(useWorkspace.getState().selUid).toBe(before.selUid);
+  });
+
+  it('falls back to a generic reason when the read error has no message', async () => {
+    renderCabinet(fakeEngine(() => OK_DECK));
+    vi.spyOn(FileReader.prototype, 'readAsText').mockImplementation(function (this: FileReader) {
+      Object.defineProperty(this, 'error', { value: null, configurable: true });
+      this.onerror?.(new ProgressEvent('error') as unknown as ProgressEvent<FileReader>);
+    });
+
+    chooseFile(new File(['x'], 'unreadable.yaml'));
+
+    await waitFor(() => expect(screen.getByTestId('import-error-banner')).toBeTruthy());
+    expect(screen.getByTestId('import-error-banner').textContent).toContain(
+      'Couldn’t import unreadable.yaml: file could not be read',
+    );
+  });
 });

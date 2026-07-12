@@ -5,7 +5,7 @@
 
 import { useRef, useState } from 'react';
 import { useOptionalEngine } from '../engine/useEngine';
-import { importYaml } from '../import/importDeck';
+import { importFailureMessage, importYaml } from '../import/importDeck';
 import type { Deck } from '../model/types';
 import { useWorkspace } from '../model/store';
 
@@ -55,6 +55,10 @@ export function Cabinet({ onImportFile }: CabinetProps) {
         setImportError(outcome.error);
         setImportNotice(null);
       }
+    };
+    reader.onerror = () => {
+      setImportError(importFailureMessage(file.name, reader.error?.message || 'file could not be read'));
+      setImportNotice(null);
     };
     reader.readAsText(file);
   }

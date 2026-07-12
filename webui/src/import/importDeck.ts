@@ -9,10 +9,16 @@ export type ImportOutcome =
   | { ok: true; deck: Deck; notice: string | null }
   | { ok: false; error: string };
 
+/** The failure-banner text, shared between a parseDeck rejection and a
+ * FileReader read failure (the file never reaching parseDeck at all). */
+export function importFailureMessage(fileName: string, reason: string): string {
+  return `Couldn’t import ${fileName}: ${reason}`;
+}
+
 export function importYaml(engine: Engine, fileName: string, text: string): ImportOutcome {
   const parsed = engine.parseDeck(text);
   if (!parsed.ok) {
-    return { ok: false, error: `Couldn’t import ${fileName}: ${parsed.error}` };
+    return { ok: false, error: importFailureMessage(fileName, parsed.error) };
   }
 
   const deck = parsedToDeck(parsed.deck);
