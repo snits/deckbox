@@ -297,6 +297,53 @@ describe('reordering', () => {
     expect(idsInOrder()[3]).toBe('sudden-storm');
   });
 
+  it('▲/▼ operate on the previous/next VISIBLE card, skipping hidden ones', () => {
+    render(<DeckEditor />);
+    const uid = currentDeck().uid;
+    act(() => {
+      useWorkspace.getState().updateDeck(uid, (d) => {
+        d.cards[0].id = 'keep-goblin-ambush'; // index 0
+        d.cards[2].id = 'keep-ancient-ruins'; // index 2; dragon-sighting (index 1) stays hidden
+      });
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('filter…'), { target: { value: 'keep' } });
+
+    const idsInOrder = () => currentDeck().cards.map((c) => c.id);
+    const secondVisibleRow = screen.getByTestId('card-row-c3'); // keep-ancient-ruins, second visible
+    fireEvent.click(within(secondVisibleRow).getByTitle('Move up'));
+
+    // Swaps with the previous VISIBLE card (index 0), jumping over the
+    // hidden dragon-sighting at index 1, which stays put.
+    expect(idsInOrder()).toEqual([
+      'keep-ancient-ruins',
+      'dragon-sighting',
+      'keep-goblin-ambush',
+      'sudden-storm',
+    ]);
+  });
+
+  it('disables ▲ on the first visible row and ▼ on the last visible row, even with hidden cards on either side', () => {
+    render(<DeckEditor />);
+    const uid = currentDeck().uid;
+    act(() => {
+      useWorkspace.getState().updateDeck(uid, (d) => {
+        d.cards[0].id = 'keep-goblin-ambush';
+        d.cards[2].id = 'keep-ancient-ruins';
+      });
+    });
+
+    fireEvent.change(screen.getByPlaceholderText('filter…'), { target: { value: 'keep' } });
+
+    const firstVisible = screen.getByTestId('card-row-c1');
+    const lastVisible = screen.getByTestId('card-row-c3');
+    expect((within(firstVisible).getByTitle('Move up') as HTMLButtonElement).disabled).toBe(true);
+    expect((within(lastVisible).getByTitle('Move down') as HTMLButtonElement).disabled).toBe(true);
+    // The opposite direction at each end of the visible list stays enabled.
+    expect((within(firstVisible).getByTitle('Move down') as HTMLButtonElement).disabled).toBe(false);
+    expect((within(lastVisible).getByTitle('Move up') as HTMLButtonElement).disabled).toBe(false);
+  });
+
   it('drag-and-drop via the handle reorders onto a sibling row', () => {
     render(<DeckEditor />);
     const idsInOrder = () => currentDeck().cards.map((c) => c.id);
