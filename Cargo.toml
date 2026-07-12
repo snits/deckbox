@@ -1,3 +1,3 @@
 [workspace]
-members = ["deckbox-core", "deckbox-cli"]
+members = ["deckbox-core", "deckbox-cli", "deckbox-wasm"]
 resolver = "2"

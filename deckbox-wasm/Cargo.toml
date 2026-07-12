@@ -1,0 +1,17 @@
+[package]
+name = "deckbox-wasm"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "WASM bindings exposing deckbox-core to the Deck Forge webui"
+repository = "https://github.com/snits/deckbox"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+deckbox-core = { path = "../deckbox-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml_ng = "0.9"
+wasm-bindgen = "0.2"
