@@ -6,7 +6,7 @@ import { persist } from 'zustand/middleware';
 import type { ParsedDeck } from '../engine/engine';
 import { newUid } from '../logic/helpers';
 import { seedDeck } from './seed';
-import type { Card, Deck } from './types';
+import type { Card, Deck, MetaRow } from './types';
 
 const STORAGE_KEY = 'deck-forge-workspace';
 
@@ -48,14 +48,25 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function isValidMetaRow(value: unknown): value is MetaRow {
+  return (
+    isObject(value) &&
+    typeof value.rid === 'string' &&
+    typeof value.key === 'string' &&
+    typeof value.value === 'string'
+  );
+}
+
 function isValidCard(value: unknown): value is Card {
   return (
     isObject(value) &&
+    typeof value.cid === 'string' &&
     typeof value.id === 'string' &&
     typeof value.title === 'string' &&
     typeof value.text === 'string' &&
     typeof value.count === 'string' &&
-    Array.isArray(value.meta)
+    Array.isArray(value.meta) &&
+    value.meta.every(isValidMetaRow)
   );
 }
 
