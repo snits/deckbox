@@ -7,8 +7,27 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { AppContent } from '../../src/App';
 import { Cabinet } from '../../src/components/Cabinet';
+import type { Engine } from '../../src/engine/engine';
+import { EngineProvider } from '../../src/engine/useEngine';
 import { seedDeck } from '../../src/model/seed';
 import { useWorkspace } from '../../src/model/store';
+
+// AppContent mounts RightPane, which renders TestDraw (and so calls
+// useEngine) whenever a deck is selected — a no-op fake is enough here since
+// these tests don't exercise draw/peek/shuffle.
+function fakeEngine(): Engine {
+  return {
+    parseDeck: () => ({ ok: false, error: 'not used' }),
+    validateDeck: () => ({ valid: true }),
+    newSession: () => ({ name: 'webui', definition_path: '-', containers: {}, definition_cards: [] }),
+    draw: () => ({
+      session: { name: 'webui', definition_path: '-', containers: {}, definition_cards: [] },
+      drawn: [],
+    }),
+    peek: () => [],
+    shuffle: () => ({ name: 'webui', definition_path: '-', containers: {}, definition_cards: [] }),
+  };
+}
 
 function resetToSeed() {
   const seed = seedDeck();
@@ -61,7 +80,11 @@ describe('adding a deck', () => {
   beforeEach(resetToEmpty);
 
   it('selects it and the header reflects its name and validity', () => {
-    render(<AppContent />);
+    render(
+      <EngineProvider engine={fakeEngine()}>
+        <AppContent />
+      </EngineProvider>,
+    );
 
     fireEvent.click(screen.getByText('+ new deck'));
 
@@ -84,7 +107,11 @@ describe('adding a deck', () => {
 
 describe('existing valid deck selected', () => {
   it('shows its name and "Deck is valid"', () => {
-    render(<AppContent />);
+    render(
+      <EngineProvider engine={fakeEngine()}>
+        <AppContent />
+      </EngineProvider>,
+    );
 
     expect(screen.getByTestId('header-deck-name').textContent).toBe('Fate Oracle');
     expect(screen.getByTestId('header-status').textContent).toBe('Deck is valid');
