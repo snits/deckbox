@@ -48,7 +48,7 @@ Bg `#2b2138`, left border `#4a3a5c`.
 - **YAML:** section title = `<slug>.YAML`; ⧉ copy (label → "✓ copied" for 1.4s) and ⬇ .yaml (downloads `<slug>.yaml`; slug = name lowercased, non-alphanumerics → `-`). Dark viewer `#171021`, `JetBrains Mono` 12px `#d6c39a`, live re-emitted on every edit.
 - **No-deck state:** YAML box shows `# no deck selected`; copy/⬇ buttons are hidden; VALIDATION and DRAW THE CARDS are replaced by a single italic placeholder "— select a deck to validate and test-draw —".
 - **VALIDATION:** subtitle "deckbox rules + editor checks". Valid → teal `✓ Deck is valid.` Else red mono `✕` rows, one per problem. Inline field borders stay in sync with this list.
-- **DRAW THE CARDS** (subtitle "ephemeral session"): gold **⤴ Draw** + N stepper + **◉ Peek** + **⇄ Shuffle** + **↺ Reset**; pile chips (`draw_pile` first, then alphabetical — `drawn` appears after first draw; user containers stay 0); output panel where drawn cards **accumulate** (gold `Cormorant SC` title + mono instance id + text; peek rows show an italic violet "peek —" title and move nothing). Empty-pile: Draw disables + hint "pile empty — reset to draw again".
+- **DRAW THE CARDS** (subtitle "ephemeral session"): gold **⤴ Draw** + N stepper + **◉ Peek** + **⇄ Shuffle** + **↺ Reset**; pile chips (`draw_pile` first, then alphabetical — `drawn` appears after first draw; user containers stay 0); output panel where drawn cards **accumulate** (gold `Cormorant SC` title + mono instance id + text; peek rows show an italic violet "peek —" title and move nothing). Empty-pile: Draw disables + hint "pile empty — reset to draw again". Engine-invalid deck: controls disable with hint "fix validation problems to test-draw".
 
 ---
 
@@ -63,7 +63,7 @@ Inst = { iid: '<id>:<n>', title, text }
 ```
 - `count` stored as raw string, parsed on use; UI strips non-digits.
 - Any deck edit invalidates the session (`sess = null`) and clears `outRows`.
-- **Persistence:** whole workspace (`decks`, `selUid`) saved to localStorage key `deck-forge-workspace` after every mutation; loaded on start (seed example deck when absent). The downloaded YAML is the source of truth; localStorage is working state.
+- **Persistence:** whole workspace (`decks`, `selUid`) saved to localStorage key `deck-forge-workspace` after every mutation; loaded on start (seed example deck when absent); malformed persisted decks are dropped on load (validate per-deck/per-card shape incl. string fields and ids). The downloaded YAML is the source of truth; localStorage is working state.
 
 ## Core algorithms (port faithfully)
 
@@ -71,7 +71,7 @@ Inst = { iid: '<id>:<n>', title, text }
 deckbox's serde output writes `null` for absent optionals and always writes `count`; do not mirror it. Emit hand-authored style the engine parses fine:
 - `name`, then `description` only if set, then `containers:` block only if any non-empty, blank line, `cards:`.
 - Card keys in order `id, title?, text, count?, metadata?`; omit `count` when 1; omit empty-key metadata rows; metadata in editor (insertion) order — the engine's HashMap has no stable order, the editor's order is canonical.
-- `yv(s)` scalar quoting: double-quote when empty, leading/trailing space, starts with a YAML indicator char, contains `: ` or ` #`, boolean/null-ish keyword, or numeric-looking; escape `\` and `"`.
+- `yv(s)` scalar quoting: double-quote when empty, leading/trailing whitespace, contains a newline (`\n`/`\r`), starts with a YAML indicator char, contains `:` followed by whitespace or end-of-string (a bare trailing colon is a mapping indicator — "Choose one:" must be quoted), contains ` #`, boolean/null-ish keyword, or numeric-looking; escape `\`, `"`, and newlines (`\n`→`\\n`, `\r`→`\\r`).
 
 ### Subset parser (import)
 Line-based parser for the deck schema only: top-level `name` / `description` / `containers` / `cards`; card entries `- id: …` with nested keys and a `metadata:` map; single/double-quoted scalar unquoting. Tracks `sawComments` (full-line or trailing `#`) and `dropped` unknown keys → both surface in the import notice. Errors (line-numbered) for non-`key: value` content, missing `name`, missing/empty `cards`, card without `id`. **Round-trip is semantic, not textual.** (A production build may swap in a real YAML parser; keep the notice behavior.)

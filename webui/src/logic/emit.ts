@@ -12,7 +12,7 @@ export function yv(s: string): string {
     s === '' ||
     /^\s|\s$/.test(s) ||
     NEEDS_QUOTE_LEADING.test(s) ||
-    s.includes(': ') ||
+    /:(\s|$)/.test(s) ||
     s.includes(' #') ||
     s.includes('\n') ||
     s.includes('\r') ||

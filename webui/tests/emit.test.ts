@@ -39,6 +39,8 @@ describe('yv', () => {
     ['@leading at', '"@leading at"'],
     ['`leading backtick', '"`leading backtick"'],
     ['has: colon', '"has: colon"'],
+    ['Choose one:', '"Choose one:"'],
+    ['colon:\ttab', '"colon:\ttab"'],
     ['has #hash', '"has #hash"'],
     ['true', '"true"'],
     ['FALSE', '"FALSE"'],

@@ -1,0 +1,4 @@
+name: "Trailing Colon Deck"
+cards:
+  - id: choose-one
+    text: "Choose one:"
