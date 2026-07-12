@@ -76,7 +76,12 @@ export function RightPane() {
               ))
             )}
           </div>
-          <TestDraw key={deck.uid} deck={deck} editRevision={editRevision} />
+          <TestDraw
+            key={deck.uid}
+            deck={deck}
+            editRevision={editRevision}
+            invalid={problems.length > 0}
+          />
         </div>
       )}
     </>

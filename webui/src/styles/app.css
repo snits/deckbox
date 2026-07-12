@@ -879,6 +879,13 @@ body {
   color: var(--text-muted);
 }
 
+.testdraw-output-error {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--err-on-dark);
+  margin-bottom: 9px;
+}
+
 .testdraw-card {
   margin-bottom: 9px;
 }

@@ -261,6 +261,73 @@ describe('DRAW THE CARDS', () => {
   });
 });
 
+describe('DRAW THE CARDS validation guard', () => {
+  it('disables Draw/Peek/Shuffle and shows a hint when the deck has validation problems', () => {
+    const deck = seedDeck();
+    renderRightPane(deck);
+
+    act(() => {
+      useWorkspace.getState().updateDeck(deck.uid, (d) => {
+        d.cards[1].id = d.cards[0].id;
+      });
+    });
+
+    expect((screen.getByText('⤴ Draw') as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByText('◉ Peek') as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByText('⇄ Shuffle') as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText('fix validation problems to test-draw')).toBeTruthy();
+  });
+
+  it('re-enables the controls once the deck is fixed', () => {
+    const deck = seedDeck();
+    renderRightPane(deck);
+
+    act(() => {
+      useWorkspace.getState().updateDeck(deck.uid, (d) => {
+        d.cards[1].id = d.cards[0].id;
+      });
+    });
+    act(() => {
+      useWorkspace.getState().updateDeck(deck.uid, (d) => {
+        d.cards[1].id = 'dragon-sighting';
+      });
+    });
+
+    expect((screen.getByText('⤴ Draw') as HTMLButtonElement).disabled).toBe(false);
+    expect(screen.queryByText('fix validation problems to test-draw')).toBeNull();
+  });
+
+  it('surfaces an engine error in the output area instead of crashing when newSession throws', () => {
+    const deck = seedDeck();
+    useWorkspace.setState({ decks: [deck], selUid: deck.uid, editRevision: 0 });
+    const engine: Engine = {
+      parseDeck: () => ({ ok: false, error: 'not used' }),
+      validateDeck: () => ({ valid: true }),
+      newSession: () => {
+        throw new Error('engine: session build failed');
+      },
+      draw: () => {
+        throw new Error('not reached');
+      },
+      peek: () => {
+        throw new Error('not reached');
+      },
+      shuffle: () => {
+        throw new Error('not reached');
+      },
+    };
+    render(
+      <EngineProvider engine={engine}>
+        <RightPane />
+      </EngineProvider>,
+    );
+
+    fireEvent.click(screen.getByText('⤴ Draw'));
+
+    expect(screen.getByText('engine: session build failed')).toBeTruthy();
+  });
+});
+
 describe('no-deck state', () => {
   it('shows the placeholder YAML, hides copy/download, and replaces validation/test-draw with a placeholder', () => {
     useWorkspace.setState({ decks: [], selUid: null, editRevision: 0 });
