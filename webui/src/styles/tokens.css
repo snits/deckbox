@@ -63,6 +63,16 @@ input, textarea, button, select { font-family: inherit; }
   --section-heading: #c9b16a;
   --section-note: #9c8bb0;
 
+  /* Left-rail import banners (error/notice): not in the README's Design
+     tokens table, taken from the prototype's literal CSS (.banner-err /
+     .banner-note). */
+  --banner-err-border: #8f3a28;
+  --banner-err-bg: rgba(160, 70, 45, 0.18);
+  --banner-err-text: #eec0ae;
+  --banner-note-border: #6b5a2e;
+  --banner-note-bg: rgba(180, 150, 60, 0.12);
+  --banner-note-text: #dcc89a;
+
   --radius-control: 3px;
   --radius-panel: 4px;
   --radius-pill: 11px;
