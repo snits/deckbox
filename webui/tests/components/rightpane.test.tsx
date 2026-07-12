@@ -5,7 +5,7 @@
 
 import { act } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { Engine, SessionState } from '../../src/engine/engine';
 import { EngineProvider } from '../../src/engine/useEngine';
 import { RightPane } from '../../src/components/RightPane';
@@ -106,9 +106,9 @@ describe('YAML pane', () => {
     expect(screen.getByText('renamed-deck.YAML')).toBeTruthy();
   });
 
-  it('copies the YAML to the clipboard and animates the label back after 1.4s', () => {
+  it('copies the YAML to the clipboard and animates the label back after 1.4s', async () => {
     vi.useFakeTimers();
-    const writeText = vi.fn();
+    const writeText = vi.fn(() => Promise.resolve());
     vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
     const deck = seedDeck();
     renderRightPane(deck);
@@ -116,6 +116,9 @@ describe('YAML pane', () => {
     fireEvent.click(screen.getByText('⧉ copy'));
 
     expect(writeText).toHaveBeenCalledWith(emitDeck(deck));
+    await act(async () => {
+      await Promise.resolve();
+    });
     expect(screen.getByText('✓ copied')).toBeTruthy();
 
     act(() => {
@@ -123,6 +126,24 @@ describe('YAML pane', () => {
     });
     expect(screen.getByText('⧉ copy')).toBeTruthy();
     vi.useRealTimers();
+  });
+
+  it('leaves the label as "⧉ copy" when the clipboard write rejects', async () => {
+    const writeText = vi.fn(() => Promise.reject(new Error('clipboard denied')));
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+    const deck = seedDeck();
+    renderRightPane(deck);
+
+    fireEvent.click(screen.getByText('⧉ copy'));
+
+    await waitFor(() => expect(writeText).toHaveBeenCalledWith(emitDeck(deck)));
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByText('⧉ copy')).toBeTruthy();
+    expect(screen.queryByText('✓ copied')).toBeNull();
   });
 
   it('downloads <slug>.yaml', () => {

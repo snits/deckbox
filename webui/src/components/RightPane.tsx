@@ -26,9 +26,15 @@ export function RightPane() {
 
   function handleCopy() {
     if (!deck) return;
-    navigator.clipboard?.writeText(yaml);
-    setCopyLabel(COPIED_LABEL);
-    setTimeout(() => setCopyLabel(COPY_LABEL), COPY_RESET_MS);
+    navigator.clipboard
+      ?.writeText(yaml)
+      .then(() => {
+        setCopyLabel(COPIED_LABEL);
+        setTimeout(() => setCopyLabel(COPY_LABEL), COPY_RESET_MS);
+      })
+      // The write failed (denied permission, no secure context, …) — leave
+      // the label at COPY_LABEL rather than claiming success.
+      .catch(() => {});
   }
 
   function handleDownload() {
