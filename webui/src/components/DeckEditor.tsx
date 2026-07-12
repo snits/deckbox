@@ -139,8 +139,14 @@ export function DeckEditor() {
           + card
         </button>
       </div>
-      {visibleIndices.map((i) => {
+      {visibleIndices.map((i, pos) => {
         const card = deck.cards[i];
+        // Full-array neighbors can be filtered out, so ▲/▼ swap against the
+        // previous/next VISIBLE index (hopping over hidden cards in between)
+        // rather than i ± 1 — otherwise a visible card silently swaps with a
+        // hidden one instead of the one the user sees next to it.
+        const prevVisible = pos > 0 ? visibleIndices[pos - 1] : null;
+        const nextVisible = pos < visibleIndices.length - 1 ? visibleIndices[pos + 1] : null;
         return (
           <CardRow
             key={card.cid}
@@ -149,21 +155,21 @@ export function DeckEditor() {
             textError={issues[i].textError}
             copiesError={issues[i].copiesError}
             metaKeyErrors={issues[i].metaKeyErrors}
-            canMoveUp={i > 0}
-            canMoveDown={i < deck.cards.length - 1}
+            canMoveUp={prevVisible !== null}
+            canMoveDown={nextVisible !== null}
             onMutate={(fn) => mutate((d) => fn(d.cards[i]))}
             onMoveUp={() =>
               mutate((d) => {
-                if (i === 0) return;
+                if (prevVisible === null) return;
                 const cs = d.cards;
-                [cs[i - 1], cs[i]] = [cs[i], cs[i - 1]];
+                [cs[prevVisible], cs[i]] = [cs[i], cs[prevVisible]];
               })
             }
             onMoveDown={() =>
               mutate((d) => {
+                if (nextVisible === null) return;
                 const cs = d.cards;
-                if (i >= cs.length - 1) return;
-                [cs[i], cs[i + 1]] = [cs[i + 1], cs[i]];
+                [cs[i], cs[nextVisible]] = [cs[nextVisible], cs[i]];
               })
             }
             onDuplicate={() =>
