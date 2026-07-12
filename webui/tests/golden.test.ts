@@ -25,7 +25,7 @@ beforeAll(async () => {
   engine = wrapEngine(rawWasm as unknown as RawEngine);
 });
 
-const VALID_FIXTURES = ['oracle.yaml', 'poker.yaml'];
+const VALID_FIXTURES = ['oracle.yaml', 'poker.yaml', 'multiline.yaml', 'rich.yaml'];
 const INVALID_FIXTURES = [
   'invalid-empty-cards.yaml',
   'invalid-duplicate-id.yaml',
@@ -118,6 +118,35 @@ describe('validity parity between TS and engine (real wasm)', () => {
       expect(tsValid).toBe(engineValid);
     });
   }
+});
+
+describe('session lifecycle (real wasm)', () => {
+  it('oracle.yaml: newSession -> shuffle(seed) -> draw(3) -> peek(2) counts and pile-ascending shapes', () => {
+    const src = readFixture('oracle.yaml');
+    const fresh = engine.newSession(src);
+    const startCount = fresh.containers.draw_pile.length;
+
+    const shuffled = engine.shuffle(fresh, 42);
+    expect(shuffled.containers.draw_pile.length).toBe(startCount);
+
+    const { session: afterDraw, drawn } = engine.draw(shuffled, 3);
+    expect(drawn).toHaveLength(3);
+    expect(afterDraw.containers.draw_pile.length).toBe(startCount - 3);
+    // draw returns the pile's tail, pile-ascending with top-of-deck last —
+    // so the drawn chunk is exactly what was at the tail of the pre-draw pile.
+    expect(drawn).toEqual(shuffled.containers.draw_pile.slice(-3));
+
+    const peeked = engine.peek(afterDraw, 2);
+    expect(peeked).toHaveLength(2);
+    expect(peeked).toEqual(afterDraw.containers.draw_pile.slice(-2));
+    // peek must not mutate the session.
+    expect(afterDraw.containers.draw_pile.length).toBe(startCount - 3);
+  });
+
+  it('newSession on an invalid fixture throws with the engine message', () => {
+    const src = readFixture('invalid-empty-cards.yaml');
+    expect(() => engine.newSession(src)).toThrow('deck has empty cards list');
+  });
 });
 
 describe('clean-emitter proof', () => {

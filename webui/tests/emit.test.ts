@@ -63,6 +63,18 @@ describe('yv', () => {
   it('escapes backslashes and embedded quotes when quoting is triggered', () => {
     expect(yv('has "quotes" and \\ backslash: yes')).toBe('"has \\"quotes\\" and \\\\ backslash: yes"');
   });
+
+  it('quotes and escapes embedded newlines', () => {
+    expect(yv('line one\nline two')).toBe('"line one\\nline two"');
+  });
+
+  it('quotes and escapes embedded carriage returns', () => {
+    expect(yv('line one\r\nline two')).toBe('"line one\\r\\nline two"');
+  });
+
+  it('escapes backslashes before newlines so the two don\'t interact', () => {
+    expect(yv('back\\slash\nnext line')).toBe('"back\\\\slash\\nnext line"');
+  });
 });
 
 describe('emitDeck', () => {

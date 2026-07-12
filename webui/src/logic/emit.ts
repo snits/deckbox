@@ -14,10 +14,16 @@ export function yv(s: string): string {
     NEEDS_QUOTE_LEADING.test(s) ||
     s.includes(': ') ||
     s.includes(' #') ||
+    s.includes('\n') ||
+    s.includes('\r') ||
     NEEDS_QUOTE_KEYWORDS.test(s) ||
     NEEDS_QUOTE_NUMERIC.test(s);
   if (!needsQuote) return s;
-  return `"${s.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+  return `"${s
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n')}"`;
 }
 
 export function emitDeck(deck: Deck): string {

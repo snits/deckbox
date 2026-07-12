@@ -1,0 +1,20 @@
+name: "Rich Fixture Deck"
+description: "Exercises count, title, and metadata together."
+containers:
+  - discard
+
+cards:
+  - id: goblin-ambush
+    title: "Goblin Ambush"
+    text: "A band of goblins leaps from the bushes!"
+    count: 3
+    metadata:
+      category: combat
+      image: goblin-ambush.png
+  - id: dragon-sighting
+    title: "Dragon Sighting"
+    text: "A shadow passes overhead..."
+  - id: ancient-ruins
+    text: "You stumble upon crumbling stone walls..."
+    metadata:
+      category: exploration
