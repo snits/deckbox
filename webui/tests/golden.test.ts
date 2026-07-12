@@ -25,7 +25,7 @@ beforeAll(async () => {
   engine = wrapEngine(rawWasm as unknown as RawEngine);
 });
 
-const VALID_FIXTURES = ['oracle.yaml', 'poker.yaml', 'multiline.yaml', 'rich.yaml'];
+const VALID_FIXTURES = ['oracle.yaml', 'poker.yaml', 'multiline.yaml', 'rich.yaml', 'trailing-colon.yaml'];
 const INVALID_FIXTURES = [
   'invalid-empty-cards.yaml',
   'invalid-duplicate-id.yaml',
