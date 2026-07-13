@@ -918,3 +918,12 @@ body {
   color: #cfc2ae;
   line-height: 1.5;
 }
+
+.testdraw-card-art {
+  display: block;
+  max-width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  margin: 6px 0;
+  border-radius: 4px;
+}
