@@ -115,6 +115,22 @@ fn duplicate_session_errors() {
 }
 
 #[test]
+fn new_rejects_path_traversal_name() {
+    let dir = TempDir::new().unwrap();
+    let deck = create_test_deck(&dir);
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["new", deck.to_str().unwrap(), "../evil"])
+        .output()
+        .unwrap();
+
+    assert!(!output.status.success());
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(stderr.contains("../evil"), "stderr: {}", stderr);
+}
+
+#[test]
 fn draw_from_empty_errors() {
     let dir = TempDir::new().unwrap();
     let deck = create_test_deck(&dir);
