@@ -292,4 +292,37 @@ cards:
         assert_eq!(out["valid"].as_bool(), Some(false));
         assert!(out["error"].is_string());
     }
+
+    #[test]
+    fn parse_deck_preserves_metadata_key_order() {
+        // Metadata keys in deliberately non-alphabetical source order. The
+        // editor rebuilds its metadata rows from the JSON object's key order,
+        // so parse_deck must emit them in document order. Assert against the
+        // raw JSON bytes the webui actually receives, so the check holds
+        // regardless of how a re-parse would order object keys.
+        let yaml = r#"
+name: "Ordered Deck"
+cards:
+  - id: only-card
+    text: "A card with ordered metadata."
+    metadata:
+      zebra: z
+      mango: m
+      delta: d
+      omega: o
+      alpha: a
+"#;
+        let out = parse_deck(yaml);
+        let positions: Vec<usize> = ["zebra", "mango", "delta", "omega", "alpha"]
+            .iter()
+            .map(|key| {
+                out.find(&format!("\"{key}\""))
+                    .unwrap_or_else(|| panic!("metadata key {key} missing from output: {out}"))
+            })
+            .collect();
+        assert!(
+            positions.windows(2).all(|w| w[0] < w[1]),
+            "metadata keys out of source order in {out}"
+        );
+    }
 }
