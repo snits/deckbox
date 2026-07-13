@@ -63,7 +63,7 @@ Inst = { iid: '<id>:<n>', title, text }
 ```
 - `count` stored as raw string, parsed on use; UI strips non-digits.
 - Any deck edit invalidates the session (`sess = null`) and clears `outRows`.
-- **Persistence:** whole workspace (`decks`, `selUid`) saved to localStorage key `deck-forge-workspace` after every mutation; loaded on start (seed example deck when absent); malformed persisted decks are dropped on load (validate per-deck/per-card shape incl. string fields and ids). The downloaded YAML is the source of truth; localStorage is working state.
+- **Persistence:** whole workspace (`decks`, `selUid`) saved to localStorage key `deck-forge-workspace` after every mutation; loaded on start (a fresh or absent workspace starts empty — the cabinet lists only decks the user creates or imports); malformed persisted decks are dropped on load (validate per-deck/per-card shape incl. string fields and ids). The downloaded YAML is the source of truth; localStorage is working state.
 
 ## Core algorithms (port faithfully)
 

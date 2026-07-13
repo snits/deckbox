@@ -4,7 +4,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { downloadText, newUid, randomSeed, slug } from '../src/logic/helpers';
 import { seedDeck } from '../src/model/seed';
-import { parsedToDeck, useWorkspace } from '../src/model/store';
+import { initialState, parsedToDeck, useWorkspace } from '../src/model/store';
 import type { ParsedDeck } from '../src/engine/engine';
 import type { Deck } from '../src/model/types';
 
@@ -13,6 +13,12 @@ const STORAGE_KEY = 'deck-forge-workspace';
 function resetStore() {
   const seed = seedDeck();
   useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0 });
+}
+
+// Simulates a genuine first load, where the live store holds the empty initial
+// state rather than the seeded fixture that beforeEach installs.
+function resetStoreEmpty() {
+  useWorkspace.setState({ decks: [], selUid: null, editRevision: 0 });
 }
 
 beforeEach(() => {
@@ -149,13 +155,9 @@ describe('parsedToDeck', () => {
   });
 });
 
-describe('initial state', () => {
-  it('starts on the seed deck, selected, with editRevision 0', () => {
-    const state = useWorkspace.getState();
-    expect(state.decks).toHaveLength(1);
-    expect(state.decks[0].name).toBe('Fate Oracle');
-    expect(state.selUid).toBe(state.decks[0].uid);
-    expect(state.editRevision).toBe(0);
+describe('initialState', () => {
+  it('is an empty workspace — the cabinet lists only imported or created decks', () => {
+    expect(initialState()).toEqual({ decks: [], selUid: null, editRevision: 0 });
   });
 });
 
@@ -368,34 +370,48 @@ describe('persistence', () => {
     expect(state.selUid).toBe('other');
   });
 
-  it('falls back to the seed deck when storage is absent', async () => {
+  it('keeps the empty workspace when storage is absent', async () => {
+    resetStoreEmpty();
     localStorage.removeItem(STORAGE_KEY);
 
     await useWorkspace.persist.rehydrate();
 
     const state = useWorkspace.getState();
-    expect(state.decks).toHaveLength(1);
-    expect(state.decks[0].name).toBe('Fate Oracle');
+    expect(state.decks).toEqual([]);
+    expect(state.selUid).toBeNull();
   });
 
-  it('falls back to the seed deck when storage holds corrupt JSON', async () => {
+  it('keeps the empty workspace when storage holds corrupt JSON', async () => {
+    resetStoreEmpty();
     localStorage.setItem(STORAGE_KEY, '{ this is not json');
 
     await expect(useWorkspace.persist.rehydrate()).resolves.not.toThrow();
 
     const state = useWorkspace.getState();
-    expect(state.decks).toHaveLength(1);
-    expect(state.decks[0].name).toBe('Fate Oracle');
+    expect(state.decks).toEqual([]);
+    expect(state.selUid).toBeNull();
   });
 
-  it('falls back to the seed deck when storage holds valid JSON of the wrong shape', async () => {
+  it('keeps the empty workspace when storage holds valid JSON of the wrong shape', async () => {
+    resetStoreEmpty();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: { decks: 'not-an-array' }, version: 0 }));
 
     await useWorkspace.persist.rehydrate();
 
     const state = useWorkspace.getState();
-    expect(state.decks).toHaveLength(1);
-    expect(state.decks[0].name).toBe('Fate Oracle');
+    expect(state.decks).toEqual([]);
+    expect(state.selUid).toBeNull();
+  });
+
+  it('keeps the empty workspace when a persisted document is itself empty', async () => {
+    resetStoreEmpty();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: { decks: [], selUid: null }, version: 0 }));
+
+    await useWorkspace.persist.rehydrate();
+
+    const state = useWorkspace.getState();
+    expect(state.decks).toEqual([]);
+    expect(state.selUid).toBeNull();
   });
 
   it('drops a deck missing cards and keeps the surviving deck', async () => {
@@ -431,7 +447,8 @@ describe('persistence', () => {
     expect(state.selUid).toBeNull();
   });
 
-  it('falls back to the seed deck when every persisted deck is malformed', async () => {
+  it('keeps the empty workspace when every persisted deck is malformed', async () => {
+    resetStoreEmpty();
     const bad = { uid: 'bad', name: 'Bad Deck' };
     localStorage.setItem(
       STORAGE_KEY,
@@ -441,11 +458,12 @@ describe('persistence', () => {
     await useWorkspace.persist.rehydrate();
 
     const state = useWorkspace.getState();
-    expect(state.decks).toHaveLength(1);
-    expect(state.decks[0].name).toBe('Fate Oracle');
+    expect(state.decks).toEqual([]);
+    expect(state.selUid).toBeNull();
   });
 
-  it('falls back to the seed deck when a card is missing its string fields', async () => {
+  it('keeps the empty workspace when a card is missing its string fields', async () => {
+    resetStoreEmpty();
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -460,8 +478,8 @@ describe('persistence', () => {
     await useWorkspace.persist.rehydrate();
 
     const state = useWorkspace.getState();
-    expect(state.decks).toHaveLength(1);
-    expect(state.decks[0].name).toBe('Fate Oracle');
+    expect(state.decks).toEqual([]);
+    expect(state.selUid).toBeNull();
   });
 
   it('drops a deck whose card has a non-string field but keeps a valid sibling', async () => {
