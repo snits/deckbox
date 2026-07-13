@@ -1,5 +1,5 @@
-// ABOUTME: The first-run seed deck shown when the workspace localStorage is
-// ABOUTME: absent or corrupted — exact composition pinned by the Global Constraints.
+// ABOUTME: A fully-formed example deck used as a shared fixture across the test
+// ABOUTME: suite — exact composition pinned by the Global Constraints.
 
 import type { Deck } from './types';
 
