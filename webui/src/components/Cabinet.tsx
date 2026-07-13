@@ -25,6 +25,7 @@ export function Cabinet({ onImportFile }: CabinetProps) {
   const addDeck = useWorkspace((s) => s.addDeck);
   const deleteDeck = useWorkspace((s) => s.deleteDeck);
   const importDeck = useWorkspace((s) => s.importDeck);
+  const fileHandles = useWorkspace((s) => s.fileHandles);
   const engine = useOptionalEngine();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importError, setImportError] = useState<string | null>(null);
@@ -33,7 +34,12 @@ export function Cabinet({ onImportFile }: CabinetProps) {
   function handleDelete(e: React.MouseEvent, deck: Deck) {
     e.stopPropagation();
     const name = deck.name || 'untitled deck';
-    if (!window.confirm(`Delete “${name}”? This can't be undone.`)) return;
+    const handle = fileHandles[deck.uid];
+    const boundNote = handle ? ` (saved as “${handle.name}”)` : '';
+    const message =
+      `Remove “${name}” from the cabinet? This only clears it from Deck Forge —` +
+      ` it never deletes a saved .yaml from your disk.${boundNote}`;
+    if (!window.confirm(message)) return;
     deleteDeck(deck.uid);
   }
 
