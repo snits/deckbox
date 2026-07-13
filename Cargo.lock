@@ -124,7 +124,7 @@ checksum = "1d07550c9036bf2ae0c684c4297d503f838287c83c53686d05370d0e139ae570"
 
 [[package]]
 name = "deckbox-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "deckbox-core",
@@ -134,7 +134,7 @@ dependencies = [
 
 [[package]]
 name = "deckbox-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "rand",
  "serde",
@@ -145,7 +145,7 @@ dependencies = [
 
 [[package]]
 name = "deckbox-wasm"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "deckbox-core",
  "getrandom 0.2.17",

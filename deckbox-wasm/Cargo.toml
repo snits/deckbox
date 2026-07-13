@@ -1,16 +1,16 @@
 [package]
 name = "deckbox-wasm"
-version = "0.1.0"
-edition = "2021"
-license = "MIT"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 description = "WASM bindings exposing deckbox-core to the Deck Forge webui"
-repository = "https://github.com/snits/deckbox"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-deckbox-core = { path = "../deckbox-core" }
+deckbox-core = { path = "../deckbox-core", version = "0.2.0" }
 getrandom = { version = "0.2", features = ["js"] }
 rand = "0.8"
 serde = { version = "1", features = ["derive"] }
