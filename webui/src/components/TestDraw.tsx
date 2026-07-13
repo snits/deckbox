@@ -18,6 +18,7 @@ interface OutputRow {
   text: string;
   peek: boolean;
   imageSrc: string | null;
+  alt: string;
 }
 
 interface PileChip {
@@ -53,6 +54,7 @@ function toDisplayRows(instanceIds: string[], deck: Deck, peek: boolean): Output
         text: card?.text ?? '',
         peek,
         imageSrc: card ? cardImageSrc(card, peek ? 'back' : 'front') : null,
+        alt: cardTitle,
       };
     });
 }
@@ -211,7 +213,7 @@ export function TestDraw({ deck, editRevision, invalid }: TestDrawProps) {
                 </span>
                 <span className="testdraw-card-iid">{row.instanceId}</span>
               </div>
-              {row.imageSrc && <CardArt src={row.imageSrc} alt={row.title} />}
+              {row.imageSrc && <CardArt src={row.imageSrc} alt={row.alt} />}
               <div className="testdraw-card-text">{row.text}</div>
             </div>
           ))

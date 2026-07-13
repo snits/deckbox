@@ -1,3 +1,5 @@
+// ABOUTME: Unit tests for cardImage — resolving metadata image values to
+// ABOUTME: browser-loadable srcs (/@fs for absolute paths) and per-face lookup.
 import { describe, expect, it } from 'vitest';
 import { cardImageSrc, resolveImageSrc } from '../src/logic/cardImage';
 import type { Card } from '../src/model/types';

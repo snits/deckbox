@@ -402,6 +402,7 @@ describe('DRAW THE CARDS — card art', () => {
     fireEvent.click(screen.getByText('◉ Peek'));
     const img = screen.getByRole('img') as HTMLImageElement;
     expect(img.getAttribute('src')).toBe('/@fs/decks/Back.jpg');
+    expect(img.getAttribute('alt')).toBe('Beach');
   });
 
   it('a card with no image renders no img (text only)', () => {
