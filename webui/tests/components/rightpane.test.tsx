@@ -280,6 +280,23 @@ describe('DRAW THE CARDS', () => {
     expect(screen.queryByTestId('pile-chip-drawn')).toBeNull();
     expect(screen.getByText('— draw from the pile to reveal cards —')).toBeTruthy();
   });
+
+  it('expanding a card mid-session preserves the in-progress draw', () => {
+    const deck = seedDeck();
+    renderRightPane(deck);
+
+    fireEvent.change(drawNInput(), { target: { value: '3' } });
+    fireEvent.click(screen.getByText('⤴ Draw'));
+    expect(chip('draw_pile').textContent).toBe('draw_pile 4');
+    expect(screen.getAllByTestId('output-row')).toHaveLength(3);
+
+    act(() => {
+      useWorkspace.getState().toggleCardExpanded(deck.uid, deck.cards[0].cid);
+    });
+
+    expect(chip('draw_pile').textContent).toBe('draw_pile 4');
+    expect(screen.getAllByTestId('output-row')).toHaveLength(3);
+  });
 });
 
 describe('DRAW THE CARDS validation guard', () => {

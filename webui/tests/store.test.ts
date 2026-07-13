@@ -292,6 +292,51 @@ describe('updateDeck', () => {
   });
 });
 
+describe('toggleCardExpanded', () => {
+  it('flips a card\'s expanded flag without bumping editRevision', () => {
+    const seedUid = useWorkspace.getState().decks[0].uid;
+
+    useWorkspace.getState().toggleCardExpanded(seedUid, 'c1');
+
+    const state = useWorkspace.getState();
+    expect(state.decks[0].cards.find((c) => c.cid === 'c1')!.expanded).toBe(true);
+    expect(state.editRevision).toBe(0);
+  });
+
+  it('collapses an already-expanded card, still without bumping editRevision', () => {
+    const seedUid = useWorkspace.getState().decks[0].uid;
+
+    useWorkspace.getState().toggleCardExpanded(seedUid, 'c3');
+
+    const state = useWorkspace.getState();
+    expect(state.decks[0].cards.find((c) => c.cid === 'c3')!.expanded).toBe(false);
+    expect(state.editRevision).toBe(0);
+  });
+
+  it('does not disturb a subsequent content edit\'s revision bump', () => {
+    const seedUid = useWorkspace.getState().decks[0].uid;
+
+    useWorkspace.getState().toggleCardExpanded(seedUid, 'c1');
+    useWorkspace.getState().updateDeck(seedUid, (d) => {
+      d.name = 'Renamed';
+    });
+
+    expect(useWorkspace.getState().editRevision).toBe(1);
+  });
+
+  it('leaves other cards and other decks untouched', () => {
+    useWorkspace.getState().addDeck();
+    const [seed, added] = useWorkspace.getState().decks;
+    const c2Before = seed.cards.find((c) => c.cid === 'c2')!.expanded;
+
+    useWorkspace.getState().toggleCardExpanded(seed.uid, 'c1');
+
+    const state = useWorkspace.getState();
+    expect(state.decks[0].cards.find((c) => c.cid === 'c2')!.expanded).toBe(c2Before);
+    expect(state.decks[1]).toEqual(added);
+  });
+});
+
 describe('persistence', () => {
   function readPersisted(): { state: { decks: unknown; selUid: unknown }; version: number } | null {
     const raw = localStorage.getItem(STORAGE_KEY);
