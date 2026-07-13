@@ -14,6 +14,7 @@ export interface CardRowProps {
   canMoveUp: boolean;
   canMoveDown: boolean;
   onMutate(fn: (card: Card) => void): void;
+  onToggleExpand(): void;
   onMoveUp(): void;
   onMoveDown(): void;
   onDuplicate(): void;
@@ -35,6 +36,7 @@ export function CardRow({
   canMoveUp,
   canMoveDown,
   onMutate,
+  onToggleExpand,
   onMoveUp,
   onMoveDown,
   onDuplicate,
@@ -44,12 +46,6 @@ export function CardRow({
 }: CardRowProps) {
   const copies = Math.max(1, parseInt(card.count, 10) || 1);
   const bad = idError || textError;
-
-  function toggle() {
-    onMutate((c) => {
-      c.expanded = !c.expanded;
-    });
-  }
 
   function stopAnd(fn: () => void) {
     return (e: React.MouseEvent) => {
@@ -94,7 +90,7 @@ export function CardRow({
       }}
       data-testid={`card-row-${card.cid}`}
     >
-      <div className="card-row-header" onClick={toggle}>
+      <div className="card-row-header" onClick={onToggleExpand}>
         <span className="card-row-handle" title="Drag to reorder">
           ☰
         </span>

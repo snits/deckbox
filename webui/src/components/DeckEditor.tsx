@@ -56,6 +56,7 @@ export function DeckEditor() {
   const decks = useWorkspace((s) => s.decks);
   const selUid = useWorkspace((s) => s.selUid);
   const updateDeck = useWorkspace((s) => s.updateDeck);
+  const toggleCardExpanded = useWorkspace((s) => s.toggleCardExpanded);
   const deck = decks.find((d) => d.uid === selUid);
   const [filter, setFilter] = useState('');
   const dragCid = useRef<string | null>(null);
@@ -158,6 +159,7 @@ export function DeckEditor() {
             canMoveUp={prevVisible !== null}
             canMoveDown={nextVisible !== null}
             onMutate={(fn) => mutate((d) => fn(d.cards[i]))}
+            onToggleExpand={() => toggleCardExpanded(deck.uid, card.cid)}
             onMoveUp={() =>
               mutate((d) => {
                 if (prevVisible === null) return;

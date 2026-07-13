@@ -22,6 +22,7 @@ export interface WorkspaceState extends WorkspaceData {
   deleteDeck(uid: string): void;
   importDeck(deck: Deck): void;
   updateDeck(uid: string, fn: (d: Deck) => void): void;
+  toggleCardExpanded(deckUid: string, cid: string): void;
 }
 
 function initialState(): WorkspaceData {
@@ -136,6 +137,21 @@ export const useWorkspace = create<WorkspaceState>()(
             return draft;
           });
           return { decks, editRevision: state.editRevision + 1 };
+        }),
+
+      // Card expansion is view state, not deck content: flip it without
+      // bumping editRevision so viewing a card never resets an in-progress
+      // test-draw session (editRevision's sole consumer, via RightPane).
+      toggleCardExpanded: (deckUid, cid) =>
+        set((state) => {
+          const decks = state.decks.map((d) => {
+            if (d.uid !== deckUid) return d;
+            const draft = structuredClone(d);
+            const card = draft.cards.find((c) => c.cid === cid);
+            if (card) card.expanded = !card.expanded;
+            return draft;
+          });
+          return { decks };
         }),
     }),
     {
