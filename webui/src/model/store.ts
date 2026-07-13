@@ -5,7 +5,6 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ParsedDeck } from '../engine/engine';
 import { newUid } from '../logic/helpers';
-import { seedDeck } from './seed';
 import type { Card, Deck, MetaRow } from './types';
 
 const STORAGE_KEY = 'deck-forge-workspace';
@@ -25,9 +24,10 @@ export interface WorkspaceState extends WorkspaceData {
   toggleCardExpanded(deckUid: string, cid: string): void;
 }
 
-function initialState(): WorkspaceData {
-  const seed = seedDeck();
-  return { decks: [seed], selUid: seed.uid, editRevision: 0 };
+// The cabinet is not a library: a fresh workspace lists no decks. Decks enter
+// only when the user creates (addDeck) or imports (importDeck) one.
+export function initialState(): WorkspaceData {
+  return { decks: [], selUid: null, editRevision: 0 };
 }
 
 export function blankCard(): Card {
@@ -85,9 +85,11 @@ function isValidDeck(value: unknown): value is Deck {
 
 // Validates a blob read back from localStorage. Returns a usable document, or
 // null when the shape has drifted or is corrupt — the caller then keeps the
-// already-seeded current state instead of crashing on a stale/foreign schema.
-// Malformed decks within an otherwise-valid document are dropped rather than
-// rejecting the whole document; if none survive, this falls back to null too.
+// current state instead of crashing on a stale/foreign schema. Malformed decks
+// within an otherwise-valid document are dropped rather than rejecting the whole
+// document. An empty document is indistinguishable from a fully-malformed one
+// here: both yield no surviving decks and return null, falling back to current —
+// which on first hydration is the empty workspace.
 function coerceDocument(persisted: unknown): PersistedDoc | null {
   if (!isObject(persisted)) return null;
   if (!Array.isArray(persisted.decks)) return null;
