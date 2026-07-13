@@ -11,6 +11,7 @@ categories = ["games"]
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_yaml_ng = "0.9"
+indexmap = { version = "2", features = ["serde"] }
 rand = "0.8"
 thiserror = "2"
 

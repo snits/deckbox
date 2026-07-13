@@ -2,7 +2,7 @@
 // ABOUTME: Handles validation of card IDs, counts, and container names.
 
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use indexmap::IndexMap;
 use crate::error::{DeckboxError, Result};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -11,7 +11,7 @@ pub struct CardDef {
     pub text: String,
     pub title: Option<String>,
     pub count: Option<u32>,
-    pub metadata: Option<HashMap<String, String>>,
+    pub metadata: Option<IndexMap<String, String>>,
 }
 
 impl CardDef {
