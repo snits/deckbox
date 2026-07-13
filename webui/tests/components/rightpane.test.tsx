@@ -366,6 +366,53 @@ describe('DRAW THE CARDS validation guard', () => {
   });
 });
 
+describe('DRAW THE CARDS — card art', () => {
+  function artDeck(): Deck {
+    return {
+      uid: 'art',
+      name: 'Art Deck',
+      description: '',
+      containers: [],
+      cards: [
+        {
+          cid: 'ca',
+          id: 'beach',
+          title: 'Beach',
+          text: 'sand',
+          count: '1',
+          meta: [
+            { rid: 'f', key: 'image', value: '/decks/Beach.jpg' },
+            { rid: 'b', key: 'image-back', value: '/decks/Back.jpg' },
+          ],
+          expanded: false,
+        },
+      ],
+    };
+  }
+
+  it('a drawn card renders its front image via /@fs', () => {
+    renderRightPane(artDeck());
+    fireEvent.click(screen.getByText('⤴ Draw'));
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img.getAttribute('src')).toBe('/@fs/decks/Beach.jpg');
+  });
+
+  it('a peeked card renders its back image via /@fs', () => {
+    renderRightPane(artDeck());
+    fireEvent.click(screen.getByText('◉ Peek'));
+    const img = screen.getByRole('img') as HTMLImageElement;
+    expect(img.getAttribute('src')).toBe('/@fs/decks/Back.jpg');
+  });
+
+  it('a card with no image renders no img (text only)', () => {
+    renderRightPane(seedDeck()); // goblin-ambush etc. have no image; ancient-ruins is deep in the pile
+    fireEvent.change(drawNInput(), { target: { value: '1' } });
+    fireEvent.click(screen.getByText('⤴ Draw')); // draws sudden-storm:2 — no image
+    expect(screen.getAllByTestId('output-row')).toHaveLength(1);
+    expect(screen.queryByRole('img')).toBeNull();
+  });
+});
+
 describe('no-deck state', () => {
   it('shows the placeholder YAML, hides copy/download, and replaces validation/test-draw with a placeholder', () => {
     useWorkspace.setState({ decks: [], selUid: null, editRevision: 0 });
