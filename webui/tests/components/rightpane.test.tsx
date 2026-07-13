@@ -146,7 +146,7 @@ describe('YAML pane', () => {
     expect(screen.queryByText('✓ copied')).toBeNull();
   });
 
-  it('downloads <slug>.yaml', () => {
+  it('Save downloads <slug>.yaml when the File System Access API is unavailable', () => {
     const createObjectURL = vi.fn((_obj: Blob) => 'blob:mock');
     const revokeObjectURL = vi.fn();
     vi.stubGlobal('URL', { ...URL, createObjectURL, revokeObjectURL });
@@ -154,7 +154,7 @@ describe('YAML pane', () => {
     const deck = seedDeck();
     renderRightPane(deck);
 
-    fireEvent.click(screen.getByText('⬇ .yaml'));
+    fireEvent.click(screen.getByText('Save'));
 
     expect(createObjectURL).toHaveBeenCalledTimes(1);
     expect(clickSpy).toHaveBeenCalledTimes(1);
@@ -425,9 +425,75 @@ describe('no-deck state', () => {
 
     expect(screen.getByTestId('yaml-box').textContent).toBe('# no deck selected');
     expect(screen.queryByText('⧉ copy')).toBeNull();
-    expect(screen.queryByText('⬇ .yaml')).toBeNull();
+    expect(screen.queryByText('Save')).toBeNull();
     expect(screen.queryByTestId('validation-list')).toBeNull();
     expect(screen.queryByText('DRAW THE CARDS')).toBeNull();
     expect(screen.getByText('— select a deck to validate and test-draw —')).toBeTruthy();
+  });
+});
+
+describe('Save to file (File System Access API)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    useWorkspace.setState({ fileHandles: {} });
+  });
+
+  function fakeHandle(permission: PermissionState = 'granted') {
+    const writable = { write: vi.fn(async () => {}), close: vi.fn(async () => {}) };
+    return {
+      name: 'oracle-cards.yaml',
+      writable,
+      createWritable: vi.fn(async () => writable),
+      queryPermission: vi.fn(async () => permission),
+      requestPermission: vi.fn(async () => permission),
+    };
+  }
+
+  it('shows Save as… and the bound filename, and re-writes the bound file on Save', async () => {
+    vi.stubGlobal('showSaveFilePicker', vi.fn());
+    const deck = seedDeck();
+    const handle = fakeHandle();
+    useWorkspace.setState({ decks: [deck], selUid: deck.uid, editRevision: 0 });
+    act(() => {
+      useWorkspace.getState().bindFile(deck.uid, handle as unknown as FileSystemFileHandle);
+    });
+    render(
+      <EngineProvider engine={makeFakeEngine(deck)}>
+        <RightPane />
+      </EngineProvider>,
+    );
+
+    expect(screen.getByText('Save as…')).toBeTruthy();
+    expect(screen.getByText('saved to oracle-cards.yaml')).toBeTruthy();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save'));
+    });
+
+    expect(handle.writable.write).toHaveBeenCalledWith(emitDeck(deck));
+    expect(screen.getByText('✓ saved')).toBeTruthy();
+  });
+
+  it('Save as… picks a location, writes, and binds the returned handle', async () => {
+    const handle = fakeHandle();
+    vi.stubGlobal('showSaveFilePicker', vi.fn(async () => handle));
+    const deck = seedDeck();
+    renderRightPane(deck);
+
+    expect(screen.queryByText('saved to oracle-cards.yaml')).toBeNull();
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Save as…'));
+    });
+
+    expect(handle.writable.write).toHaveBeenCalledWith(emitDeck(deck));
+    expect(useWorkspace.getState().fileHandles[deck.uid]).toBe(handle);
+    expect(screen.getByText('saved to oracle-cards.yaml')).toBeTruthy();
+  });
+
+  it('hides Save as… when the File System Access API is unavailable', () => {
+    renderRightPane(seedDeck());
+    expect(screen.queryByText('Save as…')).toBeNull();
+    expect(screen.getByText('Save')).toBeTruthy();
   });
 });

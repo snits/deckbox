@@ -31,11 +31,11 @@ function fakeEngine(): Engine {
 
 function resetToSeed() {
   const seed = seedDeck();
-  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0 });
+  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0, fileHandles: {} });
 }
 
 function resetToEmpty() {
-  useWorkspace.setState({ decks: [], selUid: null, editRevision: 0 });
+  useWorkspace.setState({ decks: [], selUid: null, editRevision: 0, fileHandles: {} });
 }
 
 afterEach(cleanup);
@@ -138,7 +138,9 @@ describe('deck deletion', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Delete New Deck' }));
 
-    expect(confirmSpy).toHaveBeenCalledWith('Delete “New Deck”? This can\'t be undone.');
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Remove “New Deck” from the cabinet? This only clears it from Deck Forge — it never deletes a saved .yaml from your disk.',
+    );
     const state = useWorkspace.getState();
     expect(state.decks.map((d) => d.uid)).toEqual([seed.uid]);
     expect(state.selUid).toBe(seed.uid);
@@ -151,6 +153,23 @@ describe('deck deletion', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Delete New Deck' }));
 
     expect(useWorkspace.getState().decks).toHaveLength(2);
+  });
+
+  it('names the saved file in the confirm when the deck is bound to one', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const uid = useWorkspace.getState().selUid as string;
+    act(() => {
+      useWorkspace
+        .getState()
+        .bindFile(uid, { name: 'oracle.yaml' } as unknown as FileSystemFileHandle);
+    });
+    render(<Cabinet />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Delete New Deck' }));
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Remove “New Deck” from the cabinet? This only clears it from Deck Forge — it never deletes a saved .yaml from your disk. (saved as “oracle.yaml”)',
+    );
   });
 });
 

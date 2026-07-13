@@ -13,6 +13,7 @@ interface WorkspaceData {
   decks: Deck[];
   selUid: string | null;
   editRevision: number;
+  fileHandles: Record<string, FileSystemFileHandle>;
 }
 
 export interface WorkspaceState extends WorkspaceData {
@@ -22,12 +23,13 @@ export interface WorkspaceState extends WorkspaceData {
   importDeck(deck: Deck): void;
   updateDeck(uid: string, fn: (d: Deck) => void): void;
   toggleCardExpanded(deckUid: string, cid: string): void;
+  bindFile(uid: string, handle: FileSystemFileHandle): void;
 }
 
 // The cabinet is not a library: a fresh workspace lists no decks. Decks enter
 // only when the user creates (addDeck) or imports (importDeck) one.
 export function initialState(): WorkspaceData {
-  return { decks: [], selUid: null, editRevision: 0 };
+  return { decks: [], selUid: null, editRevision: 0, fileHandles: {} };
 }
 
 export function blankCard(): Card {
@@ -107,6 +109,9 @@ export const useWorkspace = create<WorkspaceState>()(
 
       select: (uid) => set({ selUid: uid }),
 
+      bindFile: (uid, handle) =>
+        set((state) => ({ fileHandles: { ...state.fileHandles, [uid]: handle } })),
+
       addDeck: () =>
         set((state) => {
           const deck: Deck = {
@@ -124,8 +129,10 @@ export const useWorkspace = create<WorkspaceState>()(
           const removedIndex = state.decks.findIndex((d) => d.uid === uid);
           if (removedIndex < 0) return state;
           const decks = state.decks.filter((d) => d.uid !== uid);
-          if (state.selUid !== uid) return { decks };
-          return { decks, selUid: selectNextSurviving(decks, removedIndex) };
+          const fileHandles = { ...state.fileHandles };
+          delete fileHandles[uid];
+          if (state.selUid !== uid) return { decks, fileHandles };
+          return { decks, selUid: selectNextSurviving(decks, removedIndex), fileHandles };
         }),
 
       importDeck: (deck) => set((state) => ({ decks: [...state.decks, deck], selUid: deck.uid })),
