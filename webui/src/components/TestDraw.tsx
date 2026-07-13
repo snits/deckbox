@@ -6,15 +6,19 @@
 import { useEffect, useState } from 'react';
 import type { SessionState } from '../engine/engine';
 import { useEngine } from '../engine/useEngine';
+import { cardImageSrc } from '../logic/cardImage';
 import { emitDeck } from '../logic/emit';
 import { randomSeed } from '../logic/helpers';
 import type { Deck } from '../model/types';
+import { CardArt } from './CardArt';
 
 interface OutputRow {
   title: string;
   instanceId: string;
   text: string;
   peek: boolean;
+  imageSrc: string | null;
+  alt: string;
 }
 
 interface PileChip {
@@ -49,6 +53,8 @@ function toDisplayRows(instanceIds: string[], deck: Deck, peek: boolean): Output
         instanceId,
         text: card?.text ?? '',
         peek,
+        imageSrc: card ? cardImageSrc(card, peek ? 'back' : 'front') : null,
+        alt: cardTitle,
       };
     });
 }
@@ -207,6 +213,7 @@ export function TestDraw({ deck, editRevision, invalid }: TestDrawProps) {
                 </span>
                 <span className="testdraw-card-iid">{row.instanceId}</span>
               </div>
+              {row.imageSrc && <CardArt src={row.imageSrc} alt={row.alt} />}
               <div className="testdraw-card-text">{row.text}</div>
             </div>
           ))
