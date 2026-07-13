@@ -157,7 +157,7 @@ describe('parsedToDeck', () => {
 
 describe('initialState', () => {
   it('is an empty workspace — the cabinet lists only imported or created decks', () => {
-    expect(initialState()).toEqual({ decks: [], selUid: null, editRevision: 0 });
+    expect(initialState()).toEqual({ decks: [], selUid: null, editRevision: 0, fileHandles: {} });
   });
 });
 
