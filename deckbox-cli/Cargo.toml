@@ -11,7 +11,7 @@ name = "deckbox"
 path = "src/main.rs"
 
 [dependencies]
-deckbox-core = { path = "../deckbox-core", version = "0.2.0" }
+deckbox-core = { path = "../deckbox-core", version = "0.3.0" }
 clap = { version = "4", features = ["derive"] }
 dirs = "6"
 
