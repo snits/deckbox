@@ -109,7 +109,19 @@ fn sessions_dir() -> Result<PathBuf, Box<dyn std::error::Error>> {
     Ok(base.join("deckbox").join("sessions"))
 }
 
+fn validate_session_name(name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    if name.is_empty() || name.contains('/') || name.contains('\\') || name.contains("..") {
+        return Err(format!(
+            "invalid session name '{}': must not be empty or contain '/', '\\', or '..'",
+            name
+        )
+        .into());
+    }
+    Ok(())
+}
+
 fn session_path(name: &str) -> Result<PathBuf, Box<dyn std::error::Error>> {
+    validate_session_name(name)?;
     Ok(sessions_dir()?.join(format!("{}.yaml", name)))
 }
 
@@ -312,5 +324,42 @@ fn main() {
     if let Err(e) = run(cli) {
         eprintln!("Error: {}", e);
         std::process::exit(1);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn accepts_ordinary_names() {
+        for name in ["game-1", "my_game", "session.backup", "abc123"] {
+            assert!(validate_session_name(name).is_ok(), "should accept '{}'", name);
+        }
+    }
+
+    #[test]
+    fn rejects_empty_name() {
+        assert!(validate_session_name("").is_err());
+    }
+
+    #[test]
+    fn rejects_path_separators() {
+        for name in ["foo/bar", "foo\\bar", "/etc/passwd"] {
+            assert!(validate_session_name(name).is_err(), "should reject '{}'", name);
+        }
+    }
+
+    #[test]
+    fn rejects_parent_traversal() {
+        for name in ["..", "../../etc/foo", "a..b"] {
+            assert!(validate_session_name(name).is_err(), "should reject '{}'", name);
+        }
+    }
+
+    #[test]
+    fn error_message_names_the_input() {
+        let err = validate_session_name("../evil").unwrap_err().to_string();
+        assert!(err.contains("../evil"), "error should mention the input: {}", err);
     }
 }
