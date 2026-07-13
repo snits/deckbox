@@ -1,4 +1,4 @@
-// ABOUTME: Right pane — live YAML viewer with copy/download, the validation
+// ABOUTME: Right pane — live YAML viewer with copy/save, the validation
 // ABOUTME: list (mirrors validateDeckModel), and the test-draw panel. Shows a
 // ABOUTME: placeholder in place of validation/test-draw when no deck is selected.
 
