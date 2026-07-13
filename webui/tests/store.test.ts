@@ -12,7 +12,7 @@ const STORAGE_KEY = 'deck-forge-workspace';
 
 function resetStore() {
   const seed = seedDeck();
-  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0 });
+  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0, fileHandles: {} });
 }
 
 // Simulates a genuine first load, where the live store holds the empty initial
@@ -576,5 +576,26 @@ describe('persistence', () => {
     const state = useWorkspace.getState();
     expect(state.decks).toHaveLength(1);
     expect(state.decks[0].uid).toBe('good');
+  });
+
+  it('keeps file handles out of the persisted localStorage blob', () => {
+    useWorkspace.getState().addDeck();
+    const uid = useWorkspace.getState().selUid as string;
+    useWorkspace.getState().bindFile(uid, { name: 'deck.yaml' } as unknown as FileSystemFileHandle);
+
+    const persisted = readPersisted();
+    expect(persisted!.state).not.toHaveProperty('fileHandles');
+    expect(useWorkspace.getState().fileHandles[uid]).toBeTruthy();
+  });
+
+  it('drops a deck file handle when the deck is deleted', () => {
+    const { addDeck, bindFile, deleteDeck } = useWorkspace.getState();
+    addDeck();
+    const uid = useWorkspace.getState().selUid as string;
+    bindFile(uid, { name: 'deck.yaml' } as unknown as FileSystemFileHandle);
+    expect(useWorkspace.getState().fileHandles[uid]).toBeTruthy();
+
+    deleteDeck(uid);
+    expect(useWorkspace.getState().fileHandles[uid]).toBeUndefined();
   });
 });
