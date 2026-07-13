@@ -1,10 +1,10 @@
 [package]
 name = "deckbox-core"
-version = "0.1.0"
-edition = "2021"
-license = "MIT"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
 description = "A library for managing decks of cards with draw-without-replacement semantics"
-repository = "https://github.com/snits/deckbox"
 keywords = ["cards", "deck", "ttrpg", "oracle", "game"]
 categories = ["games"]
 
