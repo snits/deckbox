@@ -27,3 +27,4 @@ session-handoff.md
 .worktrees
 .mcp.json
 .mcp.json
+.kata.local.toml
