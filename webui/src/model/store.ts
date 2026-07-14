@@ -17,6 +17,7 @@ interface WorkspaceData {
 }
 
 export interface WorkspaceState extends WorkspaceData {
+  startNewWorkspace(): void;
   select(uid: string | null): void;
   addDeck(): void;
   deleteDeck(uid: string): void;
@@ -106,6 +107,11 @@ export const useWorkspace = create<WorkspaceState>()(
   persist(
     (set) => ({
       ...initialState(),
+
+      startNewWorkspace: () => {
+        set(initialState());
+        useWorkspace.persist.clearStorage();
+      },
 
       select: (uid) => set({ selUid: uid }),
 

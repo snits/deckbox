@@ -23,6 +23,7 @@ export function Cabinet({ onImportFile }: CabinetProps) {
   const selUid = useWorkspace((s) => s.selUid);
   const select = useWorkspace((s) => s.select);
   const addDeck = useWorkspace((s) => s.addDeck);
+  const startNewWorkspace = useWorkspace((s) => s.startNewWorkspace);
   const deleteDeck = useWorkspace((s) => s.deleteDeck);
   const importDeck = useWorkspace((s) => s.importDeck);
   const fileHandles = useWorkspace((s) => s.fileHandles);
@@ -41,6 +42,17 @@ export function Cabinet({ onImportFile }: CabinetProps) {
       ` it never deletes a saved .yaml from your disk.${boundNote}`;
     if (!window.confirm(message)) return;
     deleteDeck(deck.uid);
+  }
+
+  function handleStartNewWorkspace() {
+    if (
+      !window.confirm(
+        'Start a new workspace? Unsaved Deck Forge work will be lost. Saved YAML files on disk are untouched.',
+      )
+    ) {
+      return;
+    }
+    startNewWorkspace();
   }
 
   function importFile(file: File) {
@@ -125,6 +137,11 @@ export function Cabinet({ onImportFile }: CabinetProps) {
         <button type="button" className="cabinet-btn" onClick={() => fileInputRef.current?.click()}>
           ⤴ import .yaml
         </button>
+        {decks.length > 0 && (
+          <button type="button" className="cabinet-btn" onClick={handleStartNewWorkspace}>
+            ↺ start new workspace
+          </button>
+        )}
         <input
           ref={fileInputRef}
           type="file"

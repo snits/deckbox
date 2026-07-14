@@ -1,5 +1,12 @@
 # Agent Instructions
 
+## PROJECT SCALE CONTEXT
+
+- User count and tool type: A small number of developers maintain a browser-based tabletop deck-definition editor and its supporting Rust workspace.
+- Codebase size and complexity preferences: The codebase is small to medium; prefer straightforward, domain-focused changes over framework or subsystem expansion.
+- Process overhead expectations: Use focused tests and checks for each web UI change, while keeping issue tracking and verification evidence explicit.
+- Default approach: Pragmatic delivery with maintainable public interfaces and real component/store behavior tests.
+
 This project uses **bd** (beads) for issue tracking. Run `bd onboard` to get started.
 
 ## Quick Reference

@@ -12,6 +12,8 @@ import { EngineProvider } from '../../src/engine/useEngine';
 import { seedDeck } from '../../src/model/seed';
 import { useWorkspace } from '../../src/model/store';
 
+const STORAGE_KEY = 'deck-forge-workspace';
+
 // AppContent mounts RightPane, which renders TestDraw (and so calls
 // useEngine) whenever a deck is selected — a no-op fake is enough here since
 // these tests don't exercise draw/peek/shuffle.
@@ -170,6 +172,63 @@ describe('deck deletion', () => {
     expect(confirmSpy).toHaveBeenCalledWith(
       'Remove “New Deck” from the cabinet? This only clears it from Deck Forge — it never deletes a saved .yaml from your disk. (saved as “oracle.yaml”)',
     );
+  });
+});
+
+describe('starting a new workspace', () => {
+  it('hides the action when the cabinet is empty', () => {
+    resetToEmpty();
+    render(<Cabinet />);
+
+    expect(screen.queryByRole('button', { name: /start new workspace/i })).toBeNull();
+  });
+
+  it('confirms before resetting the workspace and showing the empty state', () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    useWorkspace.getState().addDeck();
+    const uid = useWorkspace.getState().selUid as string;
+    useWorkspace.getState().bindFile(uid, { name: 'oracle.yaml' } as unknown as FileSystemFileHandle);
+    useWorkspace.getState().updateDeck(uid, (deck) => {
+      deck.name = 'Changed Deck';
+    });
+
+    render(
+      <EngineProvider engine={fakeEngine()}>
+        <AppContent />
+      </EngineProvider>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /start new workspace/i }));
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      'Start a new workspace? Unsaved Deck Forge work will be lost. Saved YAML files on disk are untouched.',
+    );
+    const state = useWorkspace.getState();
+    expect(state.decks).toEqual([]);
+    expect(state.selUid).toBeNull();
+    expect(state.editRevision).toBe(0);
+    expect(state.fileHandles).toEqual({});
+    expect(screen.getByText('The cabinet is empty')).toBeTruthy();
+  });
+
+  it('keeps the workspace when confirmation is cancelled', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    useWorkspace.getState().addDeck();
+    const uid = useWorkspace.getState().selUid as string;
+
+    render(
+      <EngineProvider engine={fakeEngine()}>
+        <AppContent />
+      </EngineProvider>,
+    );
+    const persistedBefore = localStorage.getItem(STORAGE_KEY);
+
+    fireEvent.click(screen.getByRole('button', { name: /start new workspace/i }));
+
+    expect(useWorkspace.getState().decks).toHaveLength(2);
+    expect(useWorkspace.getState().selUid).toBe(uid);
+    expect(localStorage.getItem(STORAGE_KEY)).toBe(persistedBefore);
+    expect(screen.getByTestId('header-deck-name').textContent).toBe('New Deck');
   });
 });
 

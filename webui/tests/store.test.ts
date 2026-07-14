@@ -161,6 +161,24 @@ describe('initialState', () => {
   });
 });
 
+describe('startNewWorkspace', () => {
+  it('resets every workspace field and removes its persisted draft', () => {
+    useWorkspace.getState().addDeck();
+    const uid = useWorkspace.getState().selUid as string;
+    useWorkspace.getState().bindFile(uid, { name: 'deck.yaml' } as unknown as FileSystemFileHandle);
+    useWorkspace.getState().updateDeck(uid, (deck) => {
+      deck.name = 'Changed Deck';
+    });
+    expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull();
+
+    useWorkspace.getState().startNewWorkspace();
+
+    const { decks, selUid, editRevision, fileHandles } = useWorkspace.getState();
+    expect({ decks, selUid, editRevision, fileHandles }).toEqual(initialState());
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+  });
+});
+
 describe('select', () => {
   it('sets selUid', () => {
     useWorkspace.getState().addDeck();
