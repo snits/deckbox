@@ -11,7 +11,10 @@ import { Cabinet } from '../../src/components/Cabinet';
 import { seedDeck } from '../../src/model/seed';
 import { useWorkspace } from '../../src/model/store';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 beforeEach(() => {
   localStorage.clear();
 });
@@ -35,6 +38,14 @@ const OK_DECK: ParseResult = {
   deck: { name: 'Crossroads Oracle', description: null, containers: null, cards: [{ id: 'a', title: null, text: 'A', count: null, metadata: null }] },
   sawComments: false,
   droppedKeys: [],
+};
+
+const FOLDER_OK_DECK: ParseResult = {
+  ...OK_DECK,
+  deck: {
+    ...OK_DECK.deck,
+    cards: [{ id: 'a', title: null, text: 'A', count: null, metadata: { image: 'art/card.png' } }],
+  },
 };
 
 describe('importYaml', () => {
@@ -95,7 +106,7 @@ describe('importYaml', () => {
 
 function resetToSeed() {
   const seed = seedDeck();
-  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0 });
+  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0, imageSources: {} });
 }
 
 function renderCabinet(engine: Engine) {
@@ -109,6 +120,17 @@ function renderCabinet(engine: Engine) {
 function chooseFile(file: File) {
   const input = screen.getByTestId('cabinet-import-input') as HTMLInputElement;
   fireEvent.change(input, { target: { files: [file] } });
+}
+
+function chooseFolder(files: File[]) {
+  const input = screen.getByTestId('cabinet-folder-input') as HTMLInputElement;
+  fireEvent.change(input, { target: { files } });
+}
+
+function folderFile(contents: string, name: string, relativePath: string, type = ''): File {
+  const file = new File([contents], name, { type });
+  Object.defineProperty(file, 'webkitRelativePath', { value: relativePath, configurable: true });
+  return file;
 }
 
 function dropFile(file: File) {
@@ -201,6 +223,48 @@ describe('Cabinet import wiring', () => {
     dropFile(new File(['name: X\ncards: []'], 'dropped.yaml'));
 
     await waitFor(() => expect(useWorkspace.getState().decks).toHaveLength(2));
+  });
+
+  it('imports one manifest from a folder and maps a sibling image relative to it', async () => {
+    renderCabinet(fakeEngine(() => FOLDER_OK_DECK));
+    const manifest = folderFile('name: X', 'oracle.yaml', 'oracle/oracle.yaml', 'application/x-yaml');
+    const image = folderFile('image bytes', 'card.png', 'oracle/art/card.png', 'image/png');
+    vi.stubGlobal('URL', { ...URL, createObjectURL: vi.fn(() => 'blob:card') });
+
+    chooseFolder([manifest, image]);
+
+    await waitFor(() => expect(useWorkspace.getState().decks).toHaveLength(2));
+    const imported = useWorkspace.getState().decks[1];
+    expect(useWorkspace.getState().imageSources[imported.uid]).toEqual({ 'art/card.png': 'blob:card' });
+  });
+
+  it('rejects a folder without exactly one manifest and leaves the workspace unchanged', async () => {
+    renderCabinet(fakeEngine(() => FOLDER_OK_DECK));
+    const before = useWorkspace.getState();
+    const image = folderFile('image bytes', 'card.png', 'oracle/card.png', 'image/png');
+
+    chooseFolder([image]);
+
+    expect(screen.getByTestId('import-error-banner').textContent).toContain(
+      'Couldn’t import folder: expected exactly one .yaml or .yml manifest',
+    );
+    expect(useWorkspace.getState().decks).toEqual(before.decks);
+    expect(useWorkspace.getState().selUid).toBe(before.selUid);
+  });
+
+  it('rejects a folder with multiple manifests and leaves the workspace unchanged', () => {
+    renderCabinet(fakeEngine(() => FOLDER_OK_DECK));
+    const before = useWorkspace.getState();
+    const first = folderFile('name: X', 'one.yaml', 'oracle/one.yaml', 'application/x-yaml');
+    const second = folderFile('name: X', 'two.yml', 'oracle/two.yml', 'application/x-yaml');
+
+    chooseFolder([first, second]);
+
+    expect(screen.getByTestId('import-error-banner').textContent).toContain(
+      'Couldn’t import folder: expected exactly one .yaml or .yml manifest',
+    );
+    expect(useWorkspace.getState().decks).toEqual(before.decks);
+    expect(useWorkspace.getState().selUid).toBe(before.selUid);
   });
 
   it('shows the failure banner when the file cannot be read, and leaves the workspace unchanged', async () => {
