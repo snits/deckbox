@@ -33,11 +33,11 @@ function fakeEngine(): Engine {
 
 function resetToSeed() {
   const seed = seedDeck();
-  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0, fileHandles: {} });
+  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0, fileHandles: {}, imageSources: {} });
 }
 
 function resetToEmpty() {
-  useWorkspace.setState({ decks: [], selUid: null, editRevision: 0, fileHandles: {} });
+  useWorkspace.setState({ decks: [], selUid: null, editRevision: 0, fileHandles: {}, imageSources: {} });
 }
 
 afterEach(cleanup);

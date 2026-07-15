@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ParsedDeck } from '../engine/engine';
 import { newUid } from '../logic/helpers';
+import type { ImageSourceMap } from '../logic/imageAssets';
 import type { Card, Deck, MetaRow } from './types';
 
 const STORAGE_KEY = 'deck-forge-workspace';
@@ -14,6 +15,7 @@ interface WorkspaceData {
   selUid: string | null;
   editRevision: number;
   fileHandles: Record<string, FileSystemFileHandle>;
+  imageSources: Record<string, ImageSourceMap>;
 }
 
 export interface WorkspaceState extends WorkspaceData {
@@ -21,7 +23,7 @@ export interface WorkspaceState extends WorkspaceData {
   select(uid: string | null): void;
   addDeck(): void;
   deleteDeck(uid: string): void;
-  importDeck(deck: Deck): void;
+  importDeck(deck: Deck, imageSources?: ImageSourceMap): void;
   updateDeck(uid: string, fn: (d: Deck) => void): void;
   toggleCardExpanded(deckUid: string, cid: string): void;
   bindFile(uid: string, handle: FileSystemFileHandle): void;
@@ -30,7 +32,16 @@ export interface WorkspaceState extends WorkspaceData {
 // The cabinet is not a library: a fresh workspace lists no decks. Decks enter
 // only when the user creates (addDeck) or imports (importDeck) one.
 export function initialState(): WorkspaceData {
-  return { decks: [], selUid: null, editRevision: 0, fileHandles: {} };
+  return { decks: [], selUid: null, editRevision: 0, fileHandles: {}, imageSources: {} };
+}
+
+function revokeImageSources(sources: ImageSourceMap | undefined): void {
+  if (typeof URL === 'undefined' || typeof URL.revokeObjectURL !== 'function') return;
+  for (const source of Object.values(sources ?? {})) URL.revokeObjectURL(source);
+}
+
+function revokeAllImageSources(sources: Record<string, ImageSourceMap>): void {
+  for (const deckSources of Object.values(sources)) revokeImageSources(deckSources);
 }
 
 export function blankCard(): Card {
@@ -109,6 +120,7 @@ export const useWorkspace = create<WorkspaceState>()(
       ...initialState(),
 
       startNewWorkspace: () => {
+        revokeAllImageSources(useWorkspace.getState().imageSources);
         set(initialState());
         useWorkspace.persist.clearStorage();
       },
@@ -136,12 +148,23 @@ export const useWorkspace = create<WorkspaceState>()(
           if (removedIndex < 0) return state;
           const decks = state.decks.filter((d) => d.uid !== uid);
           const fileHandles = { ...state.fileHandles };
+          const imageSources = { ...state.imageSources };
           delete fileHandles[uid];
-          if (state.selUid !== uid) return { decks, fileHandles };
-          return { decks, selUid: selectNextSurviving(decks, removedIndex), fileHandles };
+          revokeImageSources(imageSources[uid]);
+          delete imageSources[uid];
+          if (state.selUid !== uid) return { decks, fileHandles, imageSources };
+          return { decks, selUid: selectNextSurviving(decks, removedIndex), fileHandles, imageSources };
         }),
 
-      importDeck: (deck) => set((state) => ({ decks: [...state.decks, deck], selUid: deck.uid })),
+      importDeck: (deck, imageSources = {}) =>
+        set((state) => {
+          revokeImageSources(state.imageSources[deck.uid]);
+          return {
+            decks: [...state.decks, deck],
+            selUid: deck.uid,
+            imageSources: { ...state.imageSources, [deck.uid]: imageSources },
+          };
+        }),
 
       updateDeck: (uid, fn) =>
         set((state) => {

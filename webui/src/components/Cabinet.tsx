@@ -6,6 +6,7 @@
 import { useRef, useState } from 'react';
 import { useOptionalEngine } from '../engine/useEngine';
 import { importFailureMessage, importYaml } from '../import/importDeck';
+import { createImageSources, findManifestFiles } from '../logic/imageAssets';
 import type { Deck } from '../model/types';
 import { useWorkspace } from '../model/store';
 
@@ -29,6 +30,7 @@ export function Cabinet({ onImportFile }: CabinetProps) {
   const fileHandles = useWorkspace((s) => s.fileHandles);
   const engine = useOptionalEngine();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [importNotice, setImportNotice] = useState<string | null>(null);
 
@@ -55,7 +57,7 @@ export function Cabinet({ onImportFile }: CabinetProps) {
     startNewWorkspace();
   }
 
-  function importFile(file: File) {
+  function readManifest(file: File, files: readonly File[]) {
     onImportFile?.(file);
     // Cabinet is mounted unconditionally, so it can't gate this hook call on
     // a deck being selected the way TestDraw does; null only happens in test
@@ -66,7 +68,7 @@ export function Cabinet({ onImportFile }: CabinetProps) {
     reader.onload = () => {
       const outcome = importYaml(engine, file.name, String(reader.result ?? ''));
       if (outcome.ok) {
-        importDeck(outcome.deck);
+        importDeck(outcome.deck, createImageSources(file, files));
         setImportError(null);
         setImportNotice(outcome.notice);
       } else {
@@ -81,10 +83,30 @@ export function Cabinet({ onImportFile }: CabinetProps) {
     reader.readAsText(file);
   }
 
+  function importFile(file: File) {
+    readManifest(file, [file]);
+  }
+
+  function importFolder(files: File[]) {
+    const manifests = findManifestFiles(files);
+    if (manifests.length !== 1) {
+      setImportError(importFailureMessage('folder', 'expected exactly one .yaml or .yml manifest'));
+      setImportNotice(null);
+      return;
+    }
+    readManifest(manifests[0], files);
+  }
+
   function handleFileChosen(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (file) importFile(file);
+  }
+
+  function handleFolderChosen(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    e.target.value = '';
+    if (files.length) importFolder(files);
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
@@ -137,6 +159,9 @@ export function Cabinet({ onImportFile }: CabinetProps) {
         <button type="button" className="cabinet-btn" onClick={() => fileInputRef.current?.click()}>
           ⤴ import .yaml
         </button>
+        <button type="button" className="cabinet-btn" onClick={() => folderInputRef.current?.click()}>
+          ⤴ import folder
+        </button>
         {decks.length > 0 && (
           <button type="button" className="cabinet-btn" onClick={handleStartNewWorkspace}>
             ↺ start new workspace
@@ -149,6 +174,17 @@ export function Cabinet({ onImportFile }: CabinetProps) {
           hidden
           data-testid="cabinet-import-input"
           onChange={handleFileChosen}
+        />
+        <input
+          ref={(input) => {
+            folderInputRef.current = input;
+            input?.setAttribute('webkitdirectory', '');
+          }}
+          type="file"
+          multiple
+          hidden
+          data-testid="cabinet-folder-input"
+          onChange={handleFolderChosen}
         />
       </div>
     </div>

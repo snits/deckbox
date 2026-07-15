@@ -63,8 +63,8 @@ function makeFakeEngine(deck: Deck): Engine {
   };
 }
 
-function renderRightPane(deck: Deck) {
-  useWorkspace.setState({ decks: [deck], selUid: deck.uid, editRevision: 0 });
+function renderRightPane(deck: Deck, imageSources: Record<string, string> = {}) {
+  useWorkspace.setState({ decks: [deck], selUid: deck.uid, editRevision: 0, imageSources: { [deck.uid]: imageSources } });
   const engine = makeFakeEngine(deck);
   render(
     <EngineProvider engine={engine}>
@@ -403,6 +403,26 @@ describe('DRAW THE CARDS — card art', () => {
     const img = screen.getByRole('img') as HTMLImageElement;
     expect(img.getAttribute('src')).toBe('/@fs/decks/Back.jpg');
     expect(img.getAttribute('alt')).toBe('Beach');
+  });
+
+  it('a folder-imported relative image renders its transient object URL', () => {
+    const deck = artDeck();
+    deck.cards[0].meta = [{ rid: 'f', key: 'image', value: './art/Beach.jpg' }];
+    renderRightPane(deck, { 'art/Beach.jpg': 'blob:Beach' });
+
+    fireEvent.click(screen.getByText('⤴ Draw'));
+
+    expect((screen.getByRole('img') as HTMLImageElement).getAttribute('src')).toBe('blob:Beach');
+  });
+
+  it('a folder-imported relative back image renders for peek', () => {
+    const deck = artDeck();
+    deck.cards[0].meta = [{ rid: 'b', key: 'image-back', value: './art/Back.jpg' }];
+    renderRightPane(deck, { 'art/Back.jpg': 'blob:Back' });
+
+    fireEvent.click(screen.getByText('◉ Peek'));
+
+    expect((screen.getByRole('img') as HTMLImageElement).getAttribute('src')).toBe('blob:Back');
   });
 
   it('a card with no image renders no img (text only)', () => {

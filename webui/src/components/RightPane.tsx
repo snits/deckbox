@@ -21,6 +21,7 @@ export function RightPane() {
   const decks = useWorkspace((s) => s.decks);
   const selUid = useWorkspace((s) => s.selUid);
   const editRevision = useWorkspace((s) => s.editRevision);
+  const imageSources = useWorkspace((s) => s.imageSources);
   const deck = decks.find((d) => d.uid === selUid) ?? null;
   const [copyLabel, setCopyLabel] = useState(COPY_LABEL);
   const fileHandles = useWorkspace((s) => s.fileHandles);
@@ -138,6 +139,7 @@ export function RightPane() {
             deck={deck}
             editRevision={editRevision}
             invalid={problems.length > 0}
+            imageSources={imageSources[deck.uid]}
           />
         </div>
       )}

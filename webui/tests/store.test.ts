@@ -12,13 +12,13 @@ const STORAGE_KEY = 'deck-forge-workspace';
 
 function resetStore() {
   const seed = seedDeck();
-  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0, fileHandles: {} });
+  useWorkspace.setState({ decks: [seed], selUid: seed.uid, editRevision: 0, fileHandles: {}, imageSources: {} });
 }
 
 // Simulates a genuine first load, where the live store holds the empty initial
 // state rather than the seeded fixture that beforeEach installs.
 function resetStoreEmpty() {
-  useWorkspace.setState({ decks: [], selUid: null, editRevision: 0 });
+  useWorkspace.setState({ decks: [], selUid: null, editRevision: 0, imageSources: {} });
 }
 
 beforeEach(() => {
@@ -157,7 +157,7 @@ describe('parsedToDeck', () => {
 
 describe('initialState', () => {
   it('is an empty workspace — the cabinet lists only imported or created decks', () => {
-    expect(initialState()).toEqual({ decks: [], selUid: null, editRevision: 0, fileHandles: {} });
+    expect(initialState()).toEqual({ decks: [], selUid: null, editRevision: 0, fileHandles: {}, imageSources: {} });
   });
 });
 
@@ -173,8 +173,8 @@ describe('startNewWorkspace', () => {
 
     useWorkspace.getState().startNewWorkspace();
 
-    const { decks, selUid, editRevision, fileHandles } = useWorkspace.getState();
-    expect({ decks, selUid, editRevision, fileHandles }).toEqual(initialState());
+    const { decks, selUid, editRevision, fileHandles, imageSources } = useWorkspace.getState();
+    expect({ decks, selUid, editRevision, fileHandles, imageSources }).toEqual(initialState());
     expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
   });
 });
@@ -615,5 +615,44 @@ describe('persistence', () => {
 
     deleteDeck(uid);
     expect(useWorkspace.getState().fileHandles[uid]).toBeUndefined();
+  });
+
+  it('revokes and drops transient image sources when a deck is deleted', () => {
+    const revokeObjectURL = vi.fn();
+    vi.stubGlobal('URL', { ...URL, revokeObjectURL });
+    const deck = useWorkspace.getState().decks[0];
+
+    useWorkspace.getState().importDeck(deck, { 'card.png': 'blob:card' });
+    useWorkspace.getState().deleteDeck(deck.uid);
+
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:card');
+    expect(useWorkspace.getState().imageSources[deck.uid]).toBeUndefined();
+    vi.unstubAllGlobals();
+  });
+});
+
+describe('transient image sources', () => {
+  it('keeps imported image sources out of persisted workspace data', () => {
+    const deck = useWorkspace.getState().decks[0];
+
+    useWorkspace.getState().importDeck(deck, { 'card.png': 'blob:card' });
+
+    expect(useWorkspace.getState().imageSources[deck.uid]).toEqual({ 'card.png': 'blob:card' });
+    const persisted = JSON.parse(localStorage.getItem(STORAGE_KEY)!);
+    expect(persisted.state).not.toHaveProperty('imageSources');
+  });
+
+  it('revokes all transient image sources when starting a new workspace', () => {
+    const revokeObjectURL = vi.fn();
+    vi.stubGlobal('URL', { ...URL, revokeObjectURL });
+    const deck = useWorkspace.getState().decks[0];
+    useWorkspace.getState().importDeck(deck, { 'front.png': 'blob:front', 'back.png': 'blob:back' });
+
+    useWorkspace.getState().startNewWorkspace();
+
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:front');
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:back');
+    expect(useWorkspace.getState().imageSources).toEqual({});
+    vi.unstubAllGlobals();
   });
 });

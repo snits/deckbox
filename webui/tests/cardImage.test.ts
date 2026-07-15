@@ -23,6 +23,13 @@ describe('resolveImageSrc', () => {
   it('passes a bare relative value through unchanged', () => {
     expect(resolveImageSrc('ancient-ruins.png')).toBe('ancient-ruins.png');
   });
+  it('passes an unmatched relative value through unchanged', () => {
+    expect(resolveImageSrc('missing.png', { 'other.png': 'blob:other' })).toBe('missing.png');
+  });
+  it('resolves a relative value through a selected manifest asset map', () => {
+    expect(resolveImageSrc('./art/ancient-ruins.png', { 'art/ancient-ruins.png': 'blob:ruins' })).toBe('blob:ruins');
+    expect(resolveImageSrc('../cover.png', { '../cover.png': 'blob:cover' })).toBe('blob:cover');
+  });
 });
 
 describe('cardImageSrc', () => {
@@ -41,5 +48,9 @@ describe('cardImageSrc', () => {
   it('returns null when the value is blank', () => {
     const c = card([{ rid: 'm', key: 'image', value: '   ' }]);
     expect(cardImageSrc(c, 'front')).toBeNull();
+  });
+  it('uses the selected manifest asset map for a card image', () => {
+    const c = card([{ rid: 'm', key: 'image', value: './art/front.jpg' }]);
+    expect(cardImageSrc(c, 'front', { 'art/front.jpg': 'blob:front' })).toBe('blob:front');
   });
 });

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import type { SessionState } from '../engine/engine';
 import { useEngine } from '../engine/useEngine';
 import { cardImageSrc } from '../logic/cardImage';
+import type { ImageSourceMap } from '../logic/imageAssets';
 import { emitDeck } from '../logic/emit';
 import { randomSeed } from '../logic/helpers';
 import type { Deck } from '../model/types';
@@ -41,7 +42,12 @@ function cardFor(deck: Deck, instanceId: string) {
 // Top-of-deck-first display: draw/peek return chunks pile-ascending (the
 // engine takes the tail of the pile via split_off, preserving order), so
 // the last element of a chunk is the top of the deck.
-function toDisplayRows(instanceIds: string[], deck: Deck, peek: boolean): OutputRow[] {
+function toDisplayRows(
+  instanceIds: string[],
+  deck: Deck,
+  peek: boolean,
+  imageSources: ImageSourceMap,
+): OutputRow[] {
   return instanceIds
     .slice()
     .reverse()
@@ -53,7 +59,7 @@ function toDisplayRows(instanceIds: string[], deck: Deck, peek: boolean): Output
         instanceId,
         text: card?.text ?? '',
         peek,
-        imageSrc: card ? cardImageSrc(card, peek ? 'back' : 'front') : null,
+        imageSrc: card ? cardImageSrc(card, peek ? 'back' : 'front', imageSources) : null,
         alt: cardTitle,
       };
     });
@@ -76,9 +82,10 @@ export interface TestDrawProps {
   deck: Deck;
   editRevision: number;
   invalid: boolean;
+  imageSources?: ImageSourceMap;
 }
 
-export function TestDraw({ deck, editRevision, invalid }: TestDrawProps) {
+export function TestDraw({ deck, editRevision, invalid, imageSources = {} }: TestDrawProps) {
   const engine = useEngine();
   const [session, setSession] = useState<SessionState | null>(null);
   const [outRows, setOutRows] = useState<OutputRow[]>([]);
@@ -119,7 +126,7 @@ export function TestDraw({ deck, editRevision, invalid }: TestDrawProps) {
       const n = Math.min(requestedN(), pile.length);
       const result = engine.draw(sess, n);
       setSession(result.session);
-      setOutRows((prev) => [...prev, ...toDisplayRows(result.drawn, deck, false)]);
+      setOutRows((prev) => [...prev, ...toDisplayRows(result.drawn, deck, false, imageSources)]);
     });
   }
 
@@ -130,7 +137,7 @@ export function TestDraw({ deck, editRevision, invalid }: TestDrawProps) {
       if (!pile.length) return;
       const n = Math.min(requestedN(), pile.length);
       const peeked = engine.peek(sess, n);
-      setOutRows((prev) => [...prev, ...toDisplayRows(peeked, deck, true)]);
+      setOutRows((prev) => [...prev, ...toDisplayRows(peeked, deck, true, imageSources)]);
     });
   }
 
