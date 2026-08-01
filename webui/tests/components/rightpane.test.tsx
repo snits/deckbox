@@ -333,6 +333,32 @@ describe('DRAW THE CARDS', () => {
     const chipTestIds = screen.getAllByTestId(/^pile-chip-/).map((el) => el.dataset.testid);
     expect(chipTestIds).toEqual(['pile-chip-draw_pile', 'pile-chip-discard']);
   });
+
+  it('stores the shuffled session so a following Draw yields the new top card', () => {
+    renderRightPane(seedDeck());
+
+    expect(chip('draw_pile').textContent).toBe('draw_pile 7');
+
+    fireEvent.click(screen.getByText('⇄ Shuffle'));
+
+    // Count is unchanged either way, so this alone wouldn't catch a
+    // no-op'd handleShuffle -- the real proof is the drawn card below.
+    expect(chip('draw_pile').textContent).toBe('draw_pile 7');
+
+    fireEvent.click(screen.getByText('⤴ Draw'));
+
+    // makeFakeEngine's shuffle reverses draw_pile, so the seed deck's
+    // original top (sudden-storm:2, last in definition order) moves to the
+    // bottom and goblin-ambush:1 (originally the bottom) becomes the new
+    // top. Drawing that card only happens if Shuffle's result was actually
+    // stored via setSession and reused by ensureSession() on Draw, rather
+    // than a no-op leaving Draw to lazily build a fresh, unshuffled session.
+    expect(chip('draw_pile').textContent).toBe('draw_pile 6');
+    const rows = screen.getAllByTestId('output-row');
+    expect(rows).toHaveLength(1);
+    expect(rows[0].textContent).toContain('Goblin Ambush');
+    expect(rows[0].textContent).toContain('goblin-ambush:1');
+  });
 });
 
 describe('DRAW THE CARDS validation guard', () => {
