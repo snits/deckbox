@@ -17,26 +17,20 @@ interface CardIssues {
   metaKeyErrors: Set<string>;
 }
 
-// Reads validateDeckModel's problem messages back into per-card/per-field
+// Reads validateDeckModel's structured problems back into per-card/per-field
 // flags — the same rules the header pill counts, not a second validation
-// pass. Messages are keyed by id (or, for empty ids, by index) so a
-// duplicate/colon id lights up every card sharing that id, matching the
-// engine rule's semantics.
+// pass. Matching is by cardIndices/field, not message text, so a problem
+// tied to one card (e.g. a metadata duplicate) never bleeds onto another
+// card that merely shares that card's id.
 function deriveCardIssues(deck: Deck, problems: Problem[]): CardIssues[] {
-  const messages = new Set(problems.map((p) => p.message));
   return deck.cards.map((card, i) => {
-    const label = card.id || `card #${i + 1}`;
-    const idError =
-      messages.has(`card #${i + 1} has an empty id (editor check)`) ||
-      messages.has(`duplicate card ID: ${card.id}`) ||
-      messages.has(`card ID '${card.id}' contains a colon, which conflicts with instance ID format`);
-    const textError = messages.has(`card '${label}' has empty text (editor check)`);
-    const copiesError = messages.has(`card '${label}' has count of 0`);
+    const cardProblems = problems.filter((p) => p.cardIndices?.includes(i));
+    const idError = cardProblems.some((p) => p.field === 'id');
+    const textError = cardProblems.some((p) => p.field === 'text');
+    const copiesError = cardProblems.some((p) => p.field === 'count');
     const metaKeyErrors = new Set(
       card.meta
-        .filter((row) =>
-          messages.has(`card '${label}' has duplicate metadata key: ${row.key} (editor check)`),
-        )
+        .filter((row) => cardProblems.some((p) => p.field === 'meta' && p.metaKey === row.key))
         .map((row) => row.rid),
     );
     return { idError, textError, copiesError, metaKeyErrors };

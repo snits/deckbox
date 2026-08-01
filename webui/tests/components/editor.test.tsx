@@ -445,4 +445,38 @@ describe('duplicate card id validation', () => {
     expect(within(row2).getByTestId('card-id-chip').className).toContain('card-row-id--error');
     expect(screen.getByTestId('header-status').textContent).toContain('1 problem');
   });
+
+  it('does not bleed a duplicate-metadata-key flag from one id-twin onto the other', () => {
+    render(
+      <>
+        <Header />
+        <DeckEditor />
+      </>,
+    );
+
+    act(() => {
+      const uid = currentDeck().uid;
+      useWorkspace.getState().updateDeck(uid, (d) => {
+        d.cards[2].id = 'goblin-ambush'; // ancient-ruins now id-twin of goblin-ambush
+        d.cards[0].meta = [
+          { rid: 'x1', key: 'category', value: 'a' },
+          { rid: 'x2', key: 'category', value: 'b' },
+        ];
+      });
+    });
+
+    fireEvent.click(within(screen.getByTestId('card-row-c1')).getByTestId('card-id-chip'));
+    const c1Row = screen.getByTestId('card-row-c1');
+    const c1MetaKeys = within(c1Row)
+      .getAllByTestId(/meta-row-/)
+      .map((r) => within(r).getByPlaceholderText('category') as HTMLInputElement);
+    expect(c1MetaKeys[0].className).toContain('field-input--bad');
+    expect(c1MetaKeys[1].className).toContain('field-input--bad');
+
+    // c3 (ancient-ruins, now id-twin of c1) has its own single 'category' key
+    // with no duplicate within c3 itself, so it must not inherit c1's error.
+    const c3Row = screen.getByTestId('card-row-c3');
+    const c3CategoryInput = within(c3Row).getByDisplayValue('category') as HTMLInputElement;
+    expect(c3CategoryInput.className).not.toContain('field-input--bad');
+  });
 });

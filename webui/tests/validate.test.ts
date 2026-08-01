@@ -35,6 +35,21 @@ describe('engine rules', () => {
     expect(messages(deck)).toContain('duplicate card ID: goblin');
   });
 
+  it('reports a three-way duplicate id as a single problem naming every sharing card', () => {
+    const deck = mkDeck({
+      cards: [
+        mkCard({ cid: 'c1', id: 'goblin' }),
+        mkCard({ cid: 'c2', id: 'goblin' }),
+        mkCard({ cid: 'c3', id: 'goblin' }),
+      ],
+    });
+    const probs = validateDeckModel(deck);
+    const dupMessages = probs.filter((p) => p.message === 'duplicate card ID: goblin');
+    expect(dupMessages).toHaveLength(1);
+    expect(dupMessages[0].cardIndices).toEqual([0, 1, 2]);
+    expect(dupMessages[0].field).toBe('id');
+  });
+
   it('flags a card ID containing a colon', () => {
     const deck = mkDeck({ cards: [mkCard({ id: 'goblin:1' })] });
     expect(messages(deck)).toContain(

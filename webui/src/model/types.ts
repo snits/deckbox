@@ -25,6 +25,13 @@ export interface Deck {
   cards: Card[];
 }
 
+export type ProblemField = 'id' | 'text' | 'count' | 'meta';
+
 export interface Problem {
   message: string;
+  /** Indices of cards this problem applies to (omitted for deck-level problems). */
+  cardIndices?: number[];
+  field?: ProblemField;
+  /** Present when field === 'meta': the metadata key the problem concerns. */
+  metaKey?: string;
 }
