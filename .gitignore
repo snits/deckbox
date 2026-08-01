@@ -5,6 +5,7 @@
 webui/node_modules
 webui/dist
 webui/src/wasm/pkg
+webui/coverage
 
 # Dolt database files (added by bd init)
 .dolt/
