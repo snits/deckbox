@@ -175,7 +175,7 @@ cards:
     }
 
     #[test]
-    fn peek_returns_last_n_without_mutating() {
+    fn peek_returns_last_n_matching_what_a_subsequent_draw_takes() {
         let session_json = fresh_session_json();
         let out: serde_json::Value = serde_json::from_str(&peek(&session_json, 2)).unwrap();
         let cards: Vec<&str> = out["cards"]
@@ -186,10 +186,14 @@ cards:
             .collect();
         assert_eq!(cards, vec!["gamma:1", "delta:1"]);
 
-        // Peeking again from the same original session_json yields the same
-        // result, proving peek never mutated the session it was given.
-        let out_again: serde_json::Value = serde_json::from_str(&peek(&session_json, 2)).unwrap();
-        assert_eq!(out_again["cards"], out["cards"]);
+        // peek(session_json: &str, ...) deserializes a fresh Session on every
+        // call, so it structurally cannot mutate the caller's session_json --
+        // that's compiler-enforced, not something a test can add evidence
+        // for. What's worth pinning instead: drawing from the same original
+        // session_json takes the same cards peek just reported, which is the
+        // guarantee TestDraw's peek-then-draw flow actually relies on.
+        let drawn: serde_json::Value = serde_json::from_str(&draw(&session_json, 2)).unwrap();
+        assert_eq!(drawn["drawn"], out["cards"]);
     }
 
     #[test]
