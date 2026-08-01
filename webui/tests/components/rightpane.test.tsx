@@ -297,6 +297,42 @@ describe('DRAW THE CARDS', () => {
     expect(chip('draw_pile').textContent).toBe('draw_pile 4');
     expect(screen.getAllByTestId('output-row')).toHaveLength(3);
   });
+
+  it('orders pile chips draw_pile-first even when the session lists other containers before it', () => {
+    // A hand-built session (not buildSessionState, which always inserts
+    // draw_pile first) with discard ordered ahead of draw_pile in the
+    // container map, mirroring that a real session's key order isn't
+    // guaranteed — the component must still sort draw_pile to the front.
+    const deck = seedDeck();
+    const engine: Engine = {
+      parseDeck: () => ({ ok: false, error: 'not used' }),
+      validateDeck: () => ({ valid: true }),
+      newSession: () => ({
+        name: 'webui',
+        definition_path: '-',
+        containers: { discard: [], draw_pile: ['goblin-ambush:1'] },
+        definition_cards: deck.cards.map((c) => c.id),
+      }),
+      draw: () => {
+        throw new Error('not used');
+      },
+      peek: (session, count) => session.containers.draw_pile.slice(-count),
+      shuffle: () => {
+        throw new Error('not used');
+      },
+    };
+    useWorkspace.setState({ decks: [deck], selUid: deck.uid, editRevision: 0, imageSources: {} });
+    render(
+      <EngineProvider engine={engine}>
+        <RightPane />
+      </EngineProvider>,
+    );
+
+    fireEvent.click(screen.getByText('◉ Peek'));
+
+    const chipTestIds = screen.getAllByTestId(/^pile-chip-/).map((el) => el.dataset.testid);
+    expect(chipTestIds).toEqual(['pile-chip-draw_pile', 'pile-chip-discard']);
+  });
 });
 
 describe('DRAW THE CARDS validation guard', () => {
