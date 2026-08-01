@@ -107,6 +107,12 @@ cards:
     }
 
     #[test]
+    fn draw_malformed_session_returns_error() {
+        let out: serde_json::Value = serde_json::from_str(&draw("not json", 1)).unwrap();
+        assert!(out["error"].is_string());
+    }
+
+    #[test]
     fn draw_one_returns_last_defined_instance() {
         let session_json = fresh_session_json();
         let out: serde_json::Value = serde_json::from_str(&draw(&session_json, 1)).unwrap();
@@ -163,6 +169,12 @@ cards:
     }
 
     #[test]
+    fn peek_malformed_session_returns_error() {
+        let out: serde_json::Value = serde_json::from_str(&peek("not json", 1)).unwrap();
+        assert!(out["error"].is_string());
+    }
+
+    #[test]
     fn peek_returns_last_n_without_mutating() {
         let session_json = fresh_session_json();
         let out: serde_json::Value = serde_json::from_str(&peek(&session_json, 2)).unwrap();
@@ -184,6 +196,12 @@ cards:
     fn over_peek_returns_error() {
         let session_json = fresh_session_json();
         let out: serde_json::Value = serde_json::from_str(&peek(&session_json, 5)).unwrap();
+        assert!(out["error"].is_string());
+    }
+
+    #[test]
+    fn shuffle_malformed_session_returns_error() {
+        let out: serde_json::Value = serde_json::from_str(&shuffle("not json", 1)).unwrap();
         assert!(out["error"].is_string());
     }
 
