@@ -501,3 +501,151 @@ cards:
     assert!(stderr.contains("Warning"), "expected Warning in stderr, got: {}", stderr);
     assert!(stderr.contains("delta"), "expected 'delta' in mismatch warning, got: {}", stderr);
 }
+
+#[test]
+fn definition_mismatch_warns_on_removed_cards_and_prints_unknown_for_orphaned_instance() {
+    let dir = TempDir::new().unwrap();
+    let deck = create_test_deck(&dir);
+
+    deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["new", deck.to_str().unwrap(), "removed-test"])
+        .output()
+        .unwrap();
+
+    // Unshuffled top of pile is the last-defined card (gamma:1); draw it into
+    // "hand" so the session still holds an instance of the card we're about
+    // to remove from the definition.
+    deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["draw", "removed-test", "--to", "hand"])
+        .output()
+        .unwrap();
+
+    // Remove gamma from the deck definition.
+    fs::write(
+        &deck,
+        r#"
+name: "Integration Test Deck"
+containers:
+  - discard
+cards:
+  - id: alpha
+    text: "Alpha card"
+    count: 2
+  - id: beta
+    text: "Beta card"
+"#,
+    )
+    .unwrap();
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["list", "removed-test", "--container", "hand"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stderr = String::from_utf8_lossy(&output.stderr);
+    assert!(output.status.success(), "stderr: {}", stderr);
+    assert!(stderr.contains("Warning"), "expected Warning in stderr, got: {}", stderr);
+    assert!(stderr.contains("cards removed from definition"), "stderr: {}", stderr);
+    assert!(stderr.contains("gamma"), "expected 'gamma' in removed-cards warning, got: {}", stderr);
+    assert!(
+        stdout.contains("gamma:1 — (unknown)"),
+        "expected orphaned instance printed as unknown, got: {}",
+        stdout
+    );
+}
+
+#[test]
+fn sessions_lists_in_alphabetical_order() {
+    let dir = TempDir::new().unwrap();
+    let deck = create_test_deck(&dir);
+
+    for name in ["zebra", "apple", "mango"] {
+        deckbox()
+            .env("XDG_DATA_HOME", dir.path())
+            .args(["new", deck.to_str().unwrap(), name])
+            .output()
+            .unwrap();
+    }
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["sessions"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    let positions: Vec<usize> = ["apple", "mango", "zebra"]
+        .iter()
+        .map(|name| stdout.find(name).unwrap_or_else(|| panic!("expected '{}' in: {}", name, stdout)))
+        .collect();
+    assert!(
+        positions.windows(2).all(|w| w[0] < w[1]),
+        "expected alphabetical order (apple, mango, zebra), got: {}",
+        stdout
+    );
+}
+
+#[test]
+fn sessions_with_no_data_directory_reports_none_saved() {
+    let dir = TempDir::new().unwrap();
+    // No session ever created -- XDG_DATA_HOME points at an empty temp dir,
+    // so deckbox/sessions never gets created at all.
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["sessions"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(stdout.contains("No saved sessions."), "got: {}", stdout);
+}
+
+#[test]
+fn sessions_with_empty_directory_reports_none_saved() {
+    let dir = TempDir::new().unwrap();
+    let sessions_dir = dir.path().join("deckbox").join("sessions");
+    fs::create_dir_all(&sessions_dir).unwrap();
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["sessions"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(stdout.contains("No saved sessions."), "got: {}", stdout);
+}
+
+#[test]
+fn sessions_ignores_non_yaml_files() {
+    let dir = TempDir::new().unwrap();
+    let deck = create_test_deck(&dir);
+
+    deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["new", deck.to_str().unwrap(), "real-session"])
+        .output()
+        .unwrap();
+
+    let sessions_dir = dir.path().join("deckbox").join("sessions");
+    fs::write(sessions_dir.join("notes.txt"), "not a session").unwrap();
+
+    let output = deckbox()
+        .env("XDG_DATA_HOME", dir.path())
+        .args(["sessions"])
+        .output()
+        .unwrap();
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
+    assert!(stdout.contains("real-session"), "got: {}", stdout);
+    assert!(!stdout.contains("notes"), "expected stray non-yaml file excluded, got: {}", stdout);
+}
