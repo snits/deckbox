@@ -209,11 +209,16 @@ cards:
     }
 
     #[test]
-    fn peek_returns_top_cards_without_removing() {
+    fn peek_returns_the_top_n_cards() {
+        // peek(session: &Session, ...) borrows immutably, so it structurally
+        // cannot remove from session -- that's compiler-enforced, not
+        // something a count/remaining-length check adds evidence for.
+        // What's worth pinning: peek returns exactly the pile's top n cards.
         let session = test_session();
-        let peeked = peek(&session, "draw_pile", 2).unwrap();
-        assert_eq!(peeked.len(), 2);
-        assert_eq!(remaining(&session, "draw_pile").unwrap(), 5);
+        let pile = session.containers["draw_pile"].clone();
+        let count = 2;
+        let peeked = peek(&session, "draw_pile", count).unwrap();
+        assert_eq!(peeked, &pile[pile.len() - count..]);
     }
 
     #[test]
