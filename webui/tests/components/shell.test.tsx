@@ -246,20 +246,7 @@ describe('cabinet selection', () => {
 });
 
 describe('import wiring', () => {
-  it('calls onImportFile with the chosen file', () => {
-    const onImportFile = vi.fn();
-    render(<Cabinet onImportFile={onImportFile} />);
-    const file = new File(['name: X\ncards:\n  - id: a\n    text: t\n'], 'deck.yaml', {
-      type: 'application/x-yaml',
-    });
-    const input = screen.getByTestId('cabinet-import-input') as HTMLInputElement;
-
-    fireEvent.change(input, { target: { files: [file] } });
-
-    expect(onImportFile).toHaveBeenCalledWith(file);
-  });
-
-  it('does nothing when no handler is wired', () => {
+  it('does nothing when rendered without an engine', () => {
     render(<Cabinet />);
     const file = new File(['name: X\ncards:\n  - id: a\n    text: t\n'], 'deck.yaml');
     const input = screen.getByTestId('cabinet-import-input') as HTMLInputElement;

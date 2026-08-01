@@ -15,11 +15,7 @@ function deckCounts(deck: Deck): string {
   return `${deck.cards.length}/${total}`;
 }
 
-export interface CabinetProps {
-  onImportFile?: (file: File) => void;
-}
-
-export function Cabinet({ onImportFile }: CabinetProps) {
+export function Cabinet() {
   const decks = useWorkspace((s) => s.decks);
   const selUid = useWorkspace((s) => s.selUid);
   const select = useWorkspace((s) => s.select);
@@ -58,7 +54,6 @@ export function Cabinet({ onImportFile }: CabinetProps) {
   }
 
   function readManifest(file: File, files: readonly File[]) {
-    onImportFile?.(file);
     // Cabinet is mounted unconditionally, so it can't gate this hook call on
     // a deck being selected the way TestDraw does; null only happens in test
     // scaffolding rendered without an EngineProvider — production always
