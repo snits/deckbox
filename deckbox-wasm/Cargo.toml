@@ -10,7 +10,7 @@ description = "WASM bindings exposing deckbox-core to the Deck Forge webui"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-deckbox-core = { path = "../deckbox-core", version = "0.3.0" }
+deckbox-core = { path = "../deckbox-core", version = "0.3.1" }
 getrandom = { version = "0.2", features = ["js"] }
 rand = "0.8"
 serde = { version = "1", features = ["derive"] }
