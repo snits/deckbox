@@ -191,7 +191,10 @@ cards:
 
         let reset_session = session.reset(&def);
         assert_eq!(reset_session.name, "test-session");
-        assert_eq!(reset_session.containers["draw_pile"].len(), 3);
+        assert_eq!(
+            reset_session.containers["draw_pile"],
+            vec!["alpha:1", "alpha:2", "beta:1"]
+        );
         assert!(reset_session.containers["discard"].is_empty());
     }
 }

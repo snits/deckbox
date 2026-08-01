@@ -364,7 +364,7 @@ fn reset_restores_initial_state() {
         .unwrap();
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
 
-    // Verify draw_pile has all 4 cards again
+    // Verify draw_pile has all 4 cards again, restored in definition order
     let output = deckbox()
         .env("XDG_DATA_HOME", dir.path())
         .args(["list", "reset-test", "--container", "draw_pile"])
@@ -373,6 +373,17 @@ fn reset_restores_initial_state() {
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(output.status.success(), "stderr: {}", String::from_utf8_lossy(&output.stderr));
     assert!(stdout.contains("4 cards"), "expected 4 cards in draw_pile, got: {}", stdout);
+    let card_order: Vec<&str> = stdout
+        .lines()
+        .skip(1)
+        .map(|line| line.trim().split(" — ").next().unwrap())
+        .collect();
+    assert_eq!(
+        card_order,
+        vec!["alpha:1", "alpha:2", "beta:1", "gamma:1"],
+        "expected draw_pile restored in definition order, got: {}",
+        stdout
+    );
 
     // Verify discard is empty
     let output = deckbox()
