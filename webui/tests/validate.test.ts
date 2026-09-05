@@ -66,6 +66,11 @@ describe('engine rules', () => {
     const deck = mkDeck({ containers: ['draw_pile'] });
     expect(messages(deck)).toContain("container name 'draw_pile' is reserved");
   });
+
+  it('flags a whitespace-padded reserved container name', () => {
+    const deck = mkDeck({ containers: [' draw_pile '] });
+    expect(messages(deck)).toContain("container name 'draw_pile' is reserved");
+  });
 });
 
 describe('editor checks', () => {

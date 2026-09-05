@@ -1,9 +1,9 @@
 // ABOUTME: Deck and card definitions parsed from YAML files.
 // ABOUTME: Handles validation of card IDs, counts, and container names.
 
-use serde::{Deserialize, Serialize};
-use indexmap::IndexMap;
 use crate::error::{DeckboxError, Result};
+use indexmap::IndexMap;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct CardDef {
@@ -32,8 +32,8 @@ pub struct DeckDefinition {
 impl DeckDefinition {
     /// Parse a deck definition from a YAML string.
     pub fn from_yaml(yaml: &str) -> Result<Self> {
-        let def: DeckDefinition = serde_yaml_ng::from_str(yaml)
-            .map_err(|e| DeckboxError::YamlError(e.to_string()))?;
+        let def: DeckDefinition =
+            serde_yaml_ng::from_str(yaml).map_err(|e| DeckboxError::YamlError(e.to_string()))?;
         def.validate()?;
         Ok(def)
     }
@@ -48,24 +48,27 @@ impl DeckDefinition {
         let mut seen_ids = std::collections::HashSet::new();
         for card in &self.cards {
             if !seen_ids.insert(&card.id) {
-                return Err(DeckboxError::ValidationError(
-                    format!("duplicate card ID: {}", card.id),
-                ));
+                return Err(DeckboxError::ValidationError(format!(
+                    "duplicate card ID: {}",
+                    card.id
+                )));
             }
             if card.id.contains(':') {
-                return Err(DeckboxError::ValidationError(
-                    format!("card ID '{}' contains a colon, which conflicts with instance ID format", card.id),
-                ));
+                return Err(DeckboxError::ValidationError(format!(
+                    "card ID '{}' contains a colon, which conflicts with instance ID format",
+                    card.id
+                )));
             }
             if card.count == Some(0) {
-                return Err(DeckboxError::ValidationError(
-                    format!("card '{}' has count of 0", card.id),
-                ));
+                return Err(DeckboxError::ValidationError(format!(
+                    "card '{}' has count of 0",
+                    card.id
+                )));
             }
         }
         if let Some(containers) = &self.containers {
             for name in containers {
-                if name == "draw_pile" {
+                if name.trim() == "draw_pile" {
                     return Err(DeckboxError::ValidationError(
                         "container name 'draw_pile' is reserved".into(),
                     ));
@@ -122,13 +125,19 @@ cards:
     fn parse_full_definition() {
         let def = DeckDefinition::from_yaml(FULL_YAML).unwrap();
         assert_eq!(def.name, "Fate Oracle");
-        assert_eq!(def.description.as_deref(), Some("Draw to reveal what fate has in store"));
+        assert_eq!(
+            def.description.as_deref(),
+            Some("Draw to reveal what fate has in store")
+        );
         assert_eq!(def.cards.len(), 3);
         assert_eq!(def.cards[0].count(), 3);
         assert_eq!(def.cards[1].count(), 1);
         let meta = def.cards[2].metadata.as_ref().unwrap();
         assert_eq!(meta.get("category").unwrap(), "exploration");
-        assert_eq!(def.containers.as_ref().unwrap(), &vec!["discard".to_string()]);
+        assert_eq!(
+            def.containers.as_ref().unwrap(),
+            &vec!["discard".to_string()]
+        );
     }
 
     #[test]
@@ -201,6 +210,21 @@ cards:
 name: "Bad Deck"
 containers:
   - draw_pile
+cards:
+  - id: card
+    text: "A card"
+"#;
+        let err = DeckDefinition::from_yaml(yaml).unwrap_err();
+        assert!(matches!(err, DeckboxError::ValidationError(_)));
+        assert!(err.to_string().contains("draw_pile"));
+    }
+
+    #[test]
+    fn reject_whitespace_padded_reserved_container_name() {
+        let yaml = r#"
+name: "Bad Deck"
+containers:
+  - " draw_pile "
 cards:
   - id: card
     text: "A card"
