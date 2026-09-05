@@ -73,6 +73,27 @@ input, textarea, button, select { font-family: inherit; }
   --banner-note-bg: rgba(180, 150, 60, 0.12);
   --banner-note-text: #dcc89a;
 
+  /* Dark-surface action controls (editor/test-draw buttons, cabinet
+     actions): resting fill, hover/emphasis fill (also reused for the
+     selected cabinet row and the empty-state card back), border, label.
+     Taken from the prototype's literal CSS. */
+  --action-bg: #352a44;
+  --action-bg-hover: #3d2f4e;
+  --action-border: #6a5588;
+  --action-text: #c9b8e0;
+
+  /* Delete/remove hover fill on dark surfaces. */
+  --err-hover-bg: #54324a;
+
+  /* Muted hint text on dark panels (empty state, test-draw hint).
+     Deliberately duplicates --section-note's value under a separate name
+     so hint elements are not coupled to the editor-section-note token. */
+  --hint-text: #9c8bb0;
+
+  /* Emphasized cream text on dark surfaces (selected cabinet row name,
+     big deck-name input). */
+  --text-bright: #f0e4c8;
+
   --radius-control: 3px;
   --radius-panel: 4px;
   --radius-pill: 11px;

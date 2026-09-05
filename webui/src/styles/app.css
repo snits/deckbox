@@ -196,11 +196,11 @@ body {
 }
 
 .cabinet-row:hover {
-  background: #352a44;
+  background: var(--action-bg);
 }
 
 .cabinet-row--selected {
-  background: #3d2f4e;
+  background: var(--action-bg-hover);
   border-color: var(--border-panel);
   border-left-color: var(--gold-accent);
 }
@@ -216,7 +216,7 @@ body {
 }
 
 .cabinet-row--selected .cabinet-row-name {
-  color: #f0e4c8;
+  color: var(--text-bright);
   font-weight: 600;
 }
 
@@ -246,7 +246,7 @@ body {
 }
 
 .cabinet-row-delete:hover {
-  background: #54324a;
+  background: var(--err-hover-bg);
   color: var(--err-on-dark);
 }
 
@@ -256,7 +256,7 @@ body {
   text-align: center;
   padding: 8px;
   margin-top: 8px;
-  border: 1px dashed #6a5588;
+  border: 1px dashed var(--action-border);
   border-radius: var(--radius-control);
   background: transparent;
   color: var(--text-muted-2);
@@ -265,8 +265,8 @@ body {
 }
 
 .cabinet-btn:hover {
-  background: #352a44;
-  color: #c9b8e0;
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 /* Center pane */
@@ -286,7 +286,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 14px;
-  color: #9c8bb0;
+  color: var(--hint-text);
   text-align: center;
 }
 
@@ -299,7 +299,7 @@ body {
     inset 0 0 0 3px var(--bg-panel),
     inset 0 0 0 4px rgba(201, 162, 39, 0.55),
     0 4px 14px rgba(10, 5, 20, 0.5);
-  background-color: #3d2f4e;
+  background-color: var(--action-bg-hover);
   background-image: repeating-linear-gradient(45deg, rgba(201, 162, 39, 0.13) 0 6px, transparent 6px 12px);
   display: flex;
   align-items: center;
@@ -365,7 +365,7 @@ body {
 .field-input--big {
   font-family: var(--font-display);
   font-size: 20px;
-  color: #f0e4c8;
+  color: var(--text-bright);
 }
 
 .field-input--mono {
@@ -411,16 +411,16 @@ body {
 .editor-btn {
   padding: 6px 12px;
   border-radius: var(--radius-control);
-  border: 1px solid #6a5588;
-  background: #352a44;
-  color: #c9b8e0;
+  border: 1px solid var(--action-border);
+  background: var(--action-bg);
+  color: var(--action-text);
   font-family: var(--font-body);
   font-size: 12.5px;
   cursor: pointer;
 }
 
 .editor-btn:hover {
-  background: #3d2f4e;
+  background: var(--action-bg-hover);
 }
 
 .editor-btn--gold {
@@ -445,7 +445,7 @@ body {
   width: 34px;
   height: 34px;
   border-radius: var(--radius-control);
-  border: 1px solid #6a5588;
+  border: 1px solid var(--action-border);
   background: transparent;
   color: #c07a68;
   cursor: pointer;
@@ -453,7 +453,7 @@ body {
 }
 
 .container-remove:hover {
-  background: #54324a;
+  background: var(--err-hover-bg);
   border-color: var(--pill-bad-border);
 }
 
@@ -709,7 +709,7 @@ body {
 .right-pane-btn {
   padding: 4px 9px;
   border-radius: var(--radius-control);
-  border: 1px solid #6a5588;
+  border: 1px solid var(--action-border);
   background: transparent;
   color: var(--text-muted-2);
   font-size: 11px;
@@ -718,8 +718,8 @@ body {
 }
 
 .right-pane-btn:hover {
-  background: #352a44;
-  color: #c9b8e0;
+  background: var(--action-bg);
+  color: var(--action-text);
 }
 
 .right-pane-yaml {
@@ -792,16 +792,16 @@ body {
 .testdraw-btn {
   padding: 6px 12px;
   border-radius: var(--radius-control);
-  border: 1px solid #6a5588;
-  background: #352a44;
-  color: #c9b8e0;
+  border: 1px solid var(--action-border);
+  background: var(--action-bg);
+  color: var(--action-text);
   font-family: var(--font-body);
   font-size: 12.5px;
   cursor: pointer;
 }
 
 .testdraw-btn:hover {
-  background: #3d2f4e;
+  background: var(--action-bg-hover);
 }
 
 .testdraw-btn--gold {
@@ -836,7 +836,7 @@ body {
 
 .testdraw-hint {
   font-size: 11px;
-  color: #9c8bb0;
+  color: var(--hint-text);
   font-style: italic;
   margin: 4px 16px 0;
 }
